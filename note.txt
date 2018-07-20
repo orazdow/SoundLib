@@ -1,0 +1,42 @@
+template class types (so far):
+
+Ctl: msg, id, childs*, init(), run()
+Sig: float in, float out, float out(), out(dbl step)  
+Env public sig: uint on, float out, float out(uint trig), void reset()
+Voice public sig : uint on, float out(dbl step, int trig), float out(int note, int trig)
+polyvoice public Voice : env* envs, int voices
+--------------------------
+poly --> setEnvs(Env* envs), setEnvs(Voice* voices), setPVoive(polyvoice p) 
+--------------------------
+add:
+-cycle detection
+-signal chain...
+-control params! (in msg..)
+-osc class
+-add msg format typdefs and struct field (format field)
+-error handling on receive message side (wrong format)
+-copy assignment operator
+-global keymaps, lookup tables, variables etc
+-option for seperate ctl, audio source callbacks
+-portmidi wrapper 
+-----------
+add:
+filters
+sinosc
+fncgen
+noise
+fmosc
+delay
+wavplayer
+fft
+comb
+ctl seq
+not maps
+-----------
+now:
+sig, env template, sinosc, ar env, voice, polyvoice
+-note types: [on/off(8)][note(8)][vel(16)], [ctl_t(8)][data[24]], [note(8)][vel(8)][pitch(14)][on/off(2)]
+-list of msg formats
+-signal chain...?
+-in_fmt, out_fmt fields, Ctl* parent in class, fmt in msg
+-use note type 1 for now, in voice, polyvoice
