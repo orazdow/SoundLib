@@ -18,7 +18,8 @@ add:
 -copy assignment operator
 -global keymaps, lookup tables, variables etc
 -option for seperate ctl, audio source callbacks
--portmidi wrapper 
+-portmidi wrapper
+-var stepPeriod = tableSize/srate, setFreq(Hz) : step = Hz*stepPeriod
 -----------
 add:
 filters
@@ -37,6 +38,8 @@ now:
 sig, env template, sinosc, ar env, voice, polyvoice
 -note types: [on/off(8)][note(8)][vel(16)], [ctl_t(8)][data[24]], [note(8)][vel(8)][pitch(14)][on/off(2)]
 -list of msg formats
--signal chain...?
+-signal chain...? a_glob.call->:osc.connect(filt.connect(out));
 -in_fmt, out_fmt fields, Ctl* parent in class, fmt in msg
 -use note type 1 for now, in voice, polyvoice
+------------------------------------------------------
+msg formats: [val(32)], [val(16)][val(16)](note/on), 3 above note types^
