@@ -120,8 +120,21 @@ protected:
 
 };
 
-class Sig{
+/**** Sig base ****/
 
+class Sig{ 
+public:
+    float input, output;
+    virtual float out(){ return 0;}
+    virtual float out(double step){ return 0;}
+};
+
+/***** env base *****/
+class Env : public Sig{
+public: 
+   unsigned int on = 0; 
+   virtual double out(unsigned int trig){ return 0;}
+   virtual void reset(){}
 };
 
 /********  init  *************/

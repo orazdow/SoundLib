@@ -1,12 +1,12 @@
 template class types (so far):
 
-Ctl: msg, id, childs*, init(), run()
-Sig: float in, float out, float out(), out(dbl step)  
+Ctl: msg, id, childs*, run()
+Sig: float input, float output, float out(), out(dbl step)  
 Env public sig: uint on, float out, float out(uint trig), void reset()
 Voice public sig : uint on, float out(dbl step, int trig), float out(int note, int trig)
 polyvoice public Voice : env* envs, int voices
 --------------------------
-poly --> setEnvs(Env* envs), setEnvs(Voice* voices), setPVoive(polyvoice p) 
+poly --> setEnvs(Env* envs), setEnvs(Voice* voices), setPVoice(polyvoice p) 
 --------------------------
 add:
 -cycle detection
@@ -43,3 +43,4 @@ sig, env template, sinosc, ar env, voice, polyvoice
 -use note type 1 for now, in voice, polyvoice
 ------------------------------------------------------
 msg formats: [val(32)], [val(16)][val(16)](note/on), 3 above note types^
+params struct: {32 floats}

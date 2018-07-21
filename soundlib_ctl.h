@@ -44,14 +44,6 @@ public:
 
 };
 
-/***** env base *****/
-class Env{
-public: 
-   unsigned int on = 0; 
-   virtual double out(unsigned int trig){}
-   virtual void reset(){}
-};
-
 
 /***** poly handler *****/
 class Poly : public Ctl{
