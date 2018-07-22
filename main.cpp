@@ -17,14 +17,17 @@ int main(){
 
 	sl_init();
 
-	Key k;
-	Poly p;
+	Mouse m;
 
-	k.connect(&p);
+	// Key k;
+	// Poly p;
+
+
+	// k.connect(&p);
 
 	while(1){
 		call_ctl(); 
-		 disp(p.m);
+		// disp(p.m);
 	 //    disp_p(p);
 		Sleep(30);
 	}		 

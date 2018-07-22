@@ -20,6 +20,7 @@ add:
 -option for seperate ctl, audio source callbacks
 -portmidi wrapper
 -var stepPeriod = tableSize/srate, setFreq(Hz) : step = Hz*stepPeriod
+-static funcs for message types
 -----------
 add:
 filters
@@ -42,5 +43,7 @@ sig, env template, sinosc, ar env, voice, polyvoice
 -in_fmt, out_fmt fields, Ctl* parent in class, fmt in msg
 -use note type 1 for now, in voice, polyvoice
 ------------------------------------------------------
-msg formats: [val(32)], [val(16)][val(16)](note/on), 3 above note types^
+msg formats: [val(32)], [val(32)f], [val(16)][val(16)](note/on), 3 above note types^ (msg_type field) 
 params struct: {32 floats}
+--------------------------
+enum msg_fmt { u32_f, u32 }

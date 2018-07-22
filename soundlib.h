@@ -6,26 +6,23 @@
 #include <stdint.h>
 #include <map>
 #include <stdio.h>
+#include "soundlib_glob.h"
 
 /************
 need: cycle detection
 ************/
 
 
-class Ctl;
-static Ctl* glob_ctl;
-static bool GLOB_SET = 0;
-static unsigned int g_id = 0;
-
+/**** Msg struct ****/
 typedef struct{
     uint32_t* value;
     size_t num;
 }Msg;
 
-typedef struct{
-    uint16_t a;
-    uint16_t b;
-}Pair;
+// typedef struct{
+//     float* value;
+//     size_t num;
+// }Msg_f;
 
 
 /*** Ctl base class ***/
@@ -120,8 +117,8 @@ protected:
 
 };
 
-/**** Sig base ****/
 
+/**** Sig base ****/
 class Sig{ 
 public:
     float input, output;
@@ -137,16 +134,19 @@ public:
    virtual void reset(){}
 };
 
-/********  init  *************/
 
+/***** Ctl root class *****/
 class Glob_Ctl : public Ctl{
 public:
     Glob_Ctl() : Ctl(1){}
     void run(){ callChildren(m); }
 };
 
+
+/********  init  *************/
 void sl_init(){
     glob_ctl = new Glob_Ctl();
+    init_globals();
 }
 
 void call_ctl(){

@@ -4,36 +4,31 @@
 #include "soundlib.h"
 #include "windows.h"
 
+
 /***** keys *****/
 class Key : public Ctl{
 
-    static const int range = 21;
-    unsigned int keymap[range];
+    int range = 21;
+    unsigned int* keymap = keymap_s; 
+
 public:
+    enum keylayout {semitones, keys};
+
     Key(){ 
-        // put keymap(s) in main header globals..
+        range = sizeof(keymap_s)/sizeof(keymap_s[0]);
         msg_alloc(range);
-        keymap[0] = 'A';
-        keymap[1] = 'Z';
-        keymap[2] = 'S';
-        keymap[3] = 'X';
-        keymap[4] = 'D';
-        keymap[5] = 'C';
-        keymap[6] = 'F';
-        keymap[7] = 'V';
-        keymap[8] = 'G';
-        keymap[9] = 'B';
-        keymap[10] = 'H';
-        keymap[11] = 'N';
-        keymap[12] = 'J';
-        keymap[13] = 'M';
-        keymap[14] = 'K';
-        keymap[15] = 188;
-        keymap[16] = 'L';
-        keymap[17] = 190;
-        keymap[18] = 186;
-        keymap[19] = 191;
-        keymap[20] = 222;
+    }
+
+    Key(int layout){
+        if(layout == 0){
+            keymap = keymap_s;
+            range = sizeof(keymap_s)/sizeof(keymap_s[0]);
+            msg_alloc(range);
+        }else if(layout == 1){
+            keymap = keymap_s;
+            range = sizeof(keymap_s)/sizeof(keymap_s[0]);
+            msg_alloc(range);            
+        }
     }
 
     inline void run(){ 
@@ -44,6 +39,32 @@ public:
 
 };
 
+/**** mouse ****/
+class Mouse : public Ctl{    
+    POINT point;
+
+    // uint32_t floatToUint(float in){
+    //     return (uint32_t)(*(uint32_t*)&n);
+    // }
+
+public:
+    unsigned int width, height, x, y;
+
+    Mouse(){
+        width = GetSystemMetrics(SM_CXSCREEN);
+        height = GetSystemMetrics(SM_CYSCREEN);
+        msg_alloc(2);
+    }
+
+    void run(){
+       GetCursorPos(&point);
+       x = point.x;
+       y = point.y;
+       m.value[0] = x;
+       m.value[1] = y;
+    }
+
+};
 
 /***** poly handler *****/
 class Poly : public Ctl{
@@ -120,10 +141,7 @@ public:
         }
 
     }
-    // void setPolyLimit(unsigned int poly){
-    //     polylimit = poly;
-    // }
-    
+
     void setBaseNote(unsigned int note){
         baseNote = note;
     }
