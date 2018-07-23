@@ -42,13 +42,13 @@ public:
 /**** mouse ****/
 class Mouse : public Ctl{    
     POINT point;
-
     // uint32_t floatToUint(float in){
     //     return (uint32_t)(*(uint32_t*)&n);
     // }
 
 public:
-    unsigned int width, height, x, y;
+    unsigned int width, height;
+    double x, y;
 
     Mouse(){
         width = GetSystemMetrics(SM_CXSCREEN);
@@ -58,6 +58,8 @@ public:
 
     void run(){
        GetCursorPos(&point);
+       // x = lerp(x, point.x, 0.3);
+       // y = lerp(y, point.y, 0.3);
        x = point.x;
        y = point.y;
        m.value[0] = x;

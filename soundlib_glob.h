@@ -22,6 +22,16 @@ static float sinetable[table_size+1];
 static double notes[128];
 unsigned static int keymap_s[21];
 
+
+void initSineTable(float table[], int tsize, bool guard_point){
+    for (int i = 0; i < tsize; i++) {
+         table[i] =  sin(tau*(i/(double)tsize)); 
+       //  table[i] = tanh(sin(tau*(i/(double)tsize))*2.0);
+    }
+    if(guard_point)
+        table[tsize] = table[0];
+}
+
 /**** lerp ****/
 static inline double lerp(double v0, double v1, double t) {
   double fracpart = t-(int)t;
@@ -54,6 +64,7 @@ void init_keymap(){
 
 void init_globals(){
 	init_keymap();
+	initSineTable(sinetable, table_size, true);
 };
 
 #endif /* SOUNDLIB_GLOB_H */

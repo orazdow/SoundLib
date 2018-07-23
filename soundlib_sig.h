@@ -1,7 +1,7 @@
 #ifndef SOUNDLIB_SIG_H
 #define SOUNDLIB_SIG_H
 
-#include "soundib.h"
+#include "soundlib.h"
 
 /**** sin osc ****/
 class Osc : public Sig{
@@ -23,23 +23,18 @@ public:
     }
    ~Osc(){}
  
-    inline double out(double step){
-        phase += step;
+    inline float out(double freq){
+        phase += freq*step_rate;
         if(phase >= tsize){ phase -= tsize; }       
         return output = lerp(table[(int)phase], table[(int)phase+1], phase);       
     }
    
-    inline double out(){
+    inline float out(){
         phase += step;
         if(phase >= tsize){ phase -= tsize; }       
         return output = lerp(table[(int)phase], table[(int)phase+1], phase);       
    }
 
-   inline double outHz(double freq){
-        phase += freq*step_rate;
-        if(phase >= tsize){ phase -= tsize; }       
-        return output = lerp(table[(int)phase], table[(int)phase+1], phase);       
-   }
 };
 
 #endif /* SOUNDLIB_SIG_H */

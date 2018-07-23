@@ -1,9 +1,9 @@
 TARGET := out.exe
-SRC := main.cpp
+SRC := $(wildcard *.cpp)
 
-# INCLUDE = -ID:/Libraries/portaudio/include
-# LIBS = -LD:/Libraries/portaudio/build 
-# LIBS += -lportaudio
+INCLUDE = -ID:/Libraries/portaudio/include
+LIBS = -LD:/Libraries/portaudio/build 
+LIBS += -lportaudio
 
 CXX := g++
 FLAGS := -Wall
