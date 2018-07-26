@@ -130,7 +130,7 @@ public:
 class Env : public Sig{
 public: 
    unsigned int on = 0; 
-   virtual double out(unsigned int trig){ return 0;}
+   virtual float out(unsigned int trig){ return 0;}
    virtual void reset(){}
 };
 

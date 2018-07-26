@@ -21,6 +21,7 @@ add:
 -portmidi wrapper
 -var stepPeriod = tableSize/srate, setFreq(Hz) : step = Hz*stepPeriod
 -static funcs for message types
+-glfw mode!
 -----------
 add:
 filters
