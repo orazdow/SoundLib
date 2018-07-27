@@ -10,14 +10,14 @@ IF not [%1]==[] (GOTO args)
 
 mkdir %builddir%
 
-rem SET libdirs=/LIBPATH:portaudio_win\build
-rem SET libs=portaudio_x86.lib 
+SET libdirs=/LIBPATH:D:\Libraries\portaudio\build\msvc
+SET libs=portaudio_x86.lib 
 
-rem SET includes=/Iportaudio_win\include /Ilib
+SET includes=/ID:\Libraries\portaudio\include 
 
 set debug=/Zi /DEBUG
 
-SET files=main.cpp 
+SET files=main.cpp pa.cpp
 
 SET opts=/Fe%target% /Fo%builddir%\ %debug%
 rem SET opts=/Fe%builddir%/%target% /Fo%builddir%/
@@ -27,7 +27,7 @@ cl %opts% %includes% %files% /link %libdirs% %libs%
 GOTO end
 
 :args
-IF [%1]==[clean] (del %builddir%\* del %target%)
+IF [%1]==[clean] (rmdir %builddir% del %target%)
 IF [%1]==[run] (%target%)
 
 :end

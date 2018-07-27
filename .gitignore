@@ -1,3 +1,4 @@
 _soundlib
 *.exe
 *.o
+.vs
