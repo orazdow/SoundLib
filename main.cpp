@@ -5,7 +5,6 @@
 
 void disp(Msg m){ 
 	for(unsigned int i = 0; i < m.num; i++){
-		// printf("%u:%u ",(m.value[i]._i>>16), (m.value[i]._i&0xffff));
 		printf("%u:%u ", m.value[i]._n.note, m.value[i]._n.on);
 	}printf("\r");
 }
@@ -26,15 +25,15 @@ int main(){
 
 	m = new Mouse();
 
-	Key k;
-	Poly p;
+	// Key k;
+	// Poly p;
+	// k.connect(&p);
+    PolyKey p;
+
 	Osc* o = new Osc(200);
 
     Pa a(paFunc, o);
     a.start();
-
-
-	k.connect(&p);
 
 	while(1){
 		call_ctl(); 

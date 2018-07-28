@@ -11,16 +11,13 @@ poly --> setEnvs(Env* envs), setEnvs(Voice* voices), setPVoice(polyvoice p)
 add:
 -cycle detection
 -signal chain...
--control params! (in msg..)
+-control params (in msg..)
 -osc class
--add msg format typdefs and struct field (format field)
+-add msg format field 
 -error handling on receive message side (wrong format)
 -copy assignment operator
--global keymaps, lookup tables, variables etc
 -option for seperate ctl, audio source callbacks
 -portmidi wrapper
--var stepPeriod = tableSize/srate, setFreq(Hz) : step = Hz*stepPeriod
--static funcs for message types
 -glfw mode!
 -----------
 add:

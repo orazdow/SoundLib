@@ -115,7 +115,6 @@ public:
             if(keys[i].note == note){
                 keys[i].on = on;
                 found = true;
-                // m.value[i]._i = ((note<<16) | on); //set msg val
                 m.value[i]._n.note = note;
                 m.value[i]._n.on = on;
                 break;
@@ -126,7 +125,6 @@ public:
                 if(keys[i].ready()){    
                     keys[i].note = note;
                     keys[i].on = on;
-                    // m.value[i]._i = ((note<<16) | on); //set msg val
                     m.value[i]._n.note = note;
                     m.value[i]._n.on = on;
                     break;
@@ -155,6 +153,33 @@ private:
         for (int i = 0; i < polylimit; i++) {
             keys[i].note = 0;
             keys[i].on = false;
+        }
+    }
+
+};
+
+/**** combined Key->Poly ****/
+class PolyKey : public Poly{
+    int range = 21;
+    unsigned int* keymap = keymap_s; 
+public:
+
+    PolyKey(){
+        range = sizeof(keymap_s)/sizeof(keymap_s[0]);
+    }
+
+    PolyKey(unsigned int poly) : Poly(poly){
+        range = sizeof(keymap_s)/sizeof(keymap_s[0]);
+    }
+
+    inline void run(Msg _m){
+        for(int i = 0; i < range; i++){
+            setKey(i+baseNote, (bool)GetAsyncKeyState(keymap[i]));
+        }
+    }
+    inline void run(){
+        for(int i = 0; i < range; i++){
+            setKey(i+baseNote, (bool)GetAsyncKeyState(keymap[i]));
         }
     }
 
