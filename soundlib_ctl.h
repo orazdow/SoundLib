@@ -33,7 +33,7 @@ public:
 
     inline void run(){ 
         for(int i = 0; i < range; i++){
-            m.value[i] = (bool)GetAsyncKeyState(keymap[i]);        
+            m.value[i].i = (bool)GetAsyncKeyState(keymap[i]);        
         }   
     }
 
@@ -62,8 +62,8 @@ public:
        // y = lerp(y, point.y, 0.3);
        x = point.x;
        y = point.y;
-       m.value[0] = x;
-       m.value[1] = y;
+       m.value[0].i = x;
+       m.value[1].i = y;
     }
 
 };
@@ -80,7 +80,7 @@ public:
         bool on;  
         bool envset = 0;
         Env* env;
-        uint32_t* val;
+        // uint32_t* val;
 
         bool ready(){
             return !( on || (envset && env->on) );
@@ -121,7 +121,7 @@ public:
                 keys[i].on = on;
                 found = true;
                 // *keys[i].val = ((keys[i].note<<16) | on); //set msg val
-                m.value[i] = ((keys[i].note<<16) | on); //set msg val
+                m.value[i].i = ((keys[i].note<<16) | on); //set msg val
                 break;
             }
         }
@@ -131,7 +131,7 @@ public:
                     keys[i].note = note;
                     keys[i].on = on;
                     // *keys[i].val = ((keys[i].note<<16) | on); //set msg val
-                     m.value[i] = ((keys[i].note<<16) | on); //set msg val
+                     m.value[i].i = ((keys[i].note<<16) | on); //set msg val
                     break;
                 }
             }
@@ -141,7 +141,7 @@ public:
 
     inline void run(Msg _m){
         for(int i = 0; i < _m.num; i++){
-            setKey(i+baseNote, _m.value[i]);
+            setKey(i+baseNote, _m.value[i].i);
         }
 
     }
@@ -158,7 +158,7 @@ private:
         for (int i = 0; i < polylimit; i++) {
             keys[i].note = 0;
             keys[i].on = false;
-            keys[i].val = m.value+i;
+            // keys[i].val = m.value+i;
         }
     }
 

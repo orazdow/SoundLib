@@ -5,15 +5,15 @@
 
 void disp(Msg m){ 
 	for(unsigned int i = 0; i < m.num; i++){
-		printf("%u:%u ",(m.value[i]>>16), (m.value[i]&0xffff));
+		printf("%u:%u ",(m.value[i].i>>16), (m.value[i].i&0xffff));
 	}printf("\r");
 }
 
-void disp_p(Poly p){
-    for(int i =0; i < p.polylimit; i++){
-       printf("%u:%u ",p.keys[i].note, !p.keys[i].ready());
-    }  printf("\r"); 
-}
+// void disp_p(Poly p){
+//     for(int i =0; i < p.polylimit; i++){
+//        printf("%u:%u ",p.keys[i].note, !p.keys[i].ready());
+//     }  printf("\r"); 
+// }
 
 Mouse* m;
 void paFunc(const float* in, float* out, unsigned long frames, void* data){    

@@ -11,18 +11,17 @@
 /************
 need: cycle detection
 ************/
-
+union Val{
+    uint32_t i;
+    float f; 
+};
 
 /**** Msg struct ****/
-typedef struct{
-    uint32_t* value;
+struct Msg{
+    Val* value;
     size_t num;
-}Msg;
+};
 
-// typedef struct{
-//     float* value;
-//     size_t num;
-// }Msg_f;
 
 
 /*** Ctl base class ***/
@@ -48,9 +47,9 @@ public:
 
     Ctl(const Ctl& obj){
         m.num = obj.m.num;
-        m.value = new uint32_t[obj.m.num];
+        m.value = new Val[obj.m.num];
         for(int i = 0; i < m.num; i++){
-            m.value[i] = obj.m.value[i];
+            m.value[i].i = obj.m.value[i].i;
         }
     }
 
@@ -107,7 +106,7 @@ protected:
 
     void msg_alloc(size_t num){ 
          m.num = num;
-         m.value = new uint32_t[num];
+         m.value = new Val[num];
     }    
     
     inline void callChildren(Msg _m){ 
