@@ -33,7 +33,7 @@ public:
 
     inline void run(){ 
         for(int i = 0; i < range; i++){
-            m.value[i].i = (bool)GetAsyncKeyState(keymap[i]);        
+            m.value[i]._i = (bool)GetAsyncKeyState(keymap[i]);        
         }   
     }
 
@@ -41,11 +41,8 @@ public:
 
 /**** mouse ****/
 class Mouse : public Ctl{    
-    POINT point;
-    // uint32_t floatToUint(float in){
-    //     return (uint32_t)(*(uint32_t*)&n);
-    // }
 
+    POINT point;
 public:
     unsigned int width, height;
     double x, y;
@@ -62,8 +59,8 @@ public:
        // y = lerp(y, point.y, 0.3);
        x = point.x;
        y = point.y;
-       m.value[0].i = x;
-       m.value[1].i = y;
+       m.value[0]._f = x/(float)width;
+       m.value[1]._f = y/(float)height;
     }
 
 };
@@ -121,7 +118,7 @@ public:
                 keys[i].on = on;
                 found = true;
                 // *keys[i].val = ((keys[i].note<<16) | on); //set msg val
-                m.value[i].i = ((keys[i].note<<16) | on); //set msg val
+                m.value[i]._i = ((keys[i].note<<16) | on); //set msg val
                 break;
             }
         }
@@ -131,7 +128,7 @@ public:
                     keys[i].note = note;
                     keys[i].on = on;
                     // *keys[i].val = ((keys[i].note<<16) | on); //set msg val
-                     m.value[i].i = ((keys[i].note<<16) | on); //set msg val
+                     m.value[i]._i = ((keys[i].note<<16) | on); //set msg val
                     break;
                 }
             }
@@ -141,7 +138,7 @@ public:
 
     inline void run(Msg _m){
         for(int i = 0; i < _m.num; i++){
-            setKey(i+baseNote, _m.value[i].i);
+            setKey(i+baseNote, _m.value[i]._i);
         }
 
     }

@@ -12,8 +12,8 @@
 need: cycle detection
 ************/
 union Val{
-    uint32_t i;
-    float f; 
+    uint32_t _i;
+    float _f; 
 };
 
 /**** Msg struct ****/
@@ -49,7 +49,7 @@ public:
         m.num = obj.m.num;
         m.value = new Val[obj.m.num];
         for(int i = 0; i < m.num; i++){
-            m.value[i].i = obj.m.value[i].i;
+            m.value[i]._i = obj.m.value[i]._i;
         }
     }
 

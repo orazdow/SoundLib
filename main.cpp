@@ -5,7 +5,7 @@
 
 void disp(Msg m){ 
 	for(unsigned int i = 0; i < m.num; i++){
-		printf("%u:%u ",(m.value[i].i>>16), (m.value[i].i&0xffff));
+		printf("%u:%u ",(m.value[i]._i>>16), (m.value[i]._i&0xffff));
 	}printf("\r");
 }
 
@@ -20,7 +20,7 @@ void paFunc(const float* in, float* out, unsigned long frames, void* data){
 	Osc* o = (Osc*)data;
     
     for(unsigned long i = 0; i < frames; i++){
-    	*out++ = o->out(m->y);
+    	*out++ = o->out(m->m.value[1]._f*1000);
     }
 }
 
@@ -43,9 +43,9 @@ int main(){
 
 	while(1){
 		call_ctl(); 
-		 // printf("%f %f\r", m->x, m->y);
-		 disp(p.m);
-	 //    disp_p(p);
+		 // printf("%f %f\r", m->m.value[0]._f, m->m.value[1]._f);
+		disp(p.m);
+	     // disp_p(p);
 		Sleep(10);
 	}	
 	a.terminate();	 
