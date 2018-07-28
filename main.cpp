@@ -31,20 +31,20 @@ int main(){
 
 	m = new Mouse();
 
-	// Key k;
-	// Poly p;
+	Key k;
+	Poly p;
 	Osc* o = new Osc(200);
 
     Pa a(paFunc, o);
     a.start();
 
 
-	// k.connect(&p);
+	k.connect(&p);
 
 	while(1){
 		call_ctl(); 
-		 printf("%f %f\r", m->x, m->y);
-		// disp(p.m);
+		 // printf("%f %f\r", m->x, m->y);
+		 disp(p.m);
 	 //    disp_p(p);
 		Sleep(10);
 	}	

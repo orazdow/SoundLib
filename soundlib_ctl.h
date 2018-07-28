@@ -120,7 +120,8 @@ public:
             if(keys[i].note == note){
                 keys[i].on = on;
                 found = true;
-                *keys[i].val = ((keys[i].note<<16) | on); //set msg val
+                // *keys[i].val = ((keys[i].note<<16) | on); //set msg val
+                m.value[i] = ((keys[i].note<<16) | on); //set msg val
                 break;
             }
         }
@@ -129,7 +130,8 @@ public:
                 if(keys[i].ready()){    
                     keys[i].note = note;
                     keys[i].on = on;
-                    *keys[i].val = ((keys[i].note<<16) | on); //set msg val
+                    // *keys[i].val = ((keys[i].note<<16) | on); //set msg val
+                     m.value[i] = ((keys[i].note<<16) | on); //set msg val
                     break;
                 }
             }

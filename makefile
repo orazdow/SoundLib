@@ -6,7 +6,7 @@ LIBS = -LD:/Libraries/portaudio/build
 LIBS += -lportaudio
 
 CXX := g++
-FLAGS := -Wall
+# FLAGS := -Wall
 
 OBJECTS := $(addsuffix .o, $(basename $(notdir $(SRC))))
 DEPS = $(wildcard *.h)
