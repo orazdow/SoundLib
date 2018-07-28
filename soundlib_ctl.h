@@ -72,21 +72,19 @@ public:
     int polylimit = 8;
     int baseNote = 48;
     
-    typedef struct{
+    struct key{
         int note;
         bool on;  
         bool envset = 0;
         Env* env;
-        // uint32_t* val;
-
         bool ready(){
-            return !( on || (envset && env->on) );
+            return !(on || (envset && env->on));
         }
         void setEnv(Env* e){
            env = e; 
            envset = 1;
        }
-    }key;
+    };
 
     key* keys;
     
@@ -117,8 +115,9 @@ public:
             if(keys[i].note == note){
                 keys[i].on = on;
                 found = true;
-                // *keys[i].val = ((keys[i].note<<16) | on); //set msg val
-                m.value[i]._i = ((keys[i].note<<16) | on); //set msg val
+                // m.value[i]._i = ((note<<16) | on); //set msg val
+                m.value[i]._n.note = note;
+                m.value[i]._n.on = on;
                 break;
             }
         }
@@ -127,8 +126,9 @@ public:
                 if(keys[i].ready()){    
                     keys[i].note = note;
                     keys[i].on = on;
-                    // *keys[i].val = ((keys[i].note<<16) | on); //set msg val
-                     m.value[i]._i = ((keys[i].note<<16) | on); //set msg val
+                    // m.value[i]._i = ((note<<16) | on); //set msg val
+                    m.value[i]._n.note = note;
+                    m.value[i]._n.on = on;
                     break;
                 }
             }
@@ -155,7 +155,6 @@ private:
         for (int i = 0; i < polylimit; i++) {
             keys[i].note = 0;
             keys[i].on = false;
-            // keys[i].val = m.value+i;
         }
     }
 

@@ -11,17 +11,25 @@
 /************
 need: cycle detection
 ************/
+
+/**** Msg struct ****/
+struct Note{
+ unsigned short note;
+ uint8_t vel;
+ bool on;
+ short pitch;
+};
+
 union Val{
     uint32_t _i;
     float _f; 
+    Note _n;
 };
 
-/**** Msg struct ****/
 struct Msg{
     Val* value;
     size_t num;
 };
-
 
 
 /*** Ctl base class ***/
@@ -49,7 +57,7 @@ public:
         m.num = obj.m.num;
         m.value = new Val[obj.m.num];
         for(int i = 0; i < m.num; i++){
-            m.value[i]._i = obj.m.value[i]._i;
+            m.value[i] = obj.m.value[i];
         }
     }
 
@@ -90,7 +98,7 @@ protected:
     int master = 1;
     
     inline void call(Msg _m){ 
-        // do stuff, alter this.m..
+        // do stuff, alter m
         if(_m.num){ 
             run(_m);
         }else{
