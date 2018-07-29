@@ -11,10 +11,12 @@ void disp(Msg m){
 
 Mouse* m;
 void paFunc(const float* in, float* out, unsigned long frames, void* data){    
-	Osc* o = (Osc*)data;
+	
+	TestVoice* v = (TestVoice*)data;
     
     for(unsigned long i = 0; i < frames; i++){
-    	*out++ = o->out(m->m.value[1]._f*1000);
+    	// *out++ = o->out(m->m.value[1]._f*1000);
+    	*out++ =  v->out()*0.7;
     }
 }
 
@@ -25,20 +27,22 @@ int main(){
 
 	m = new Mouse();
 
-	// Key k;
-	// Poly p;
-	// k.connect(&p);
-    PolyKey p;
+    PolyKey p(1);
 
-	Osc* o = new Osc(200);
+	// Osc* o = new Osc(200);
+	TestVoice* v = new TestVoice();
 
-    Pa a(paFunc, o);
+	p.connect(v);
+	Env* e = v->getEnv();
+	p.setEnv(&e, 1);
+
+    Pa a(paFunc, v);
     a.start();
 
 	while(1){
 		call_ctl(); 
 		 // printf("%f %f\r", m->m.value[0]._f, m->m.value[1]._f);
-		disp(p.m);
+	    disp(p.m);
 		Sleep(10);
 	}	
 	a.terminate();	 
@@ -46,4 +50,3 @@ int main(){
 	return 0;
 }
 
-// poly >> set voice..m

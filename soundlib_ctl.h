@@ -4,6 +4,10 @@
 #include "soundlib.h"
 #include "windows.h"
 
+/******
+all Ctl must call msg_alloc
+******/
+
 
 /***** keys *****/
 class Key : public Ctl{
@@ -31,7 +35,7 @@ public:
         }
     }
 
-    inline void run(){ 
+    void run(){ 
         for(int i = 0; i < range; i++){
             m.value[i]._i = (bool)GetAsyncKeyState(keymap[i]);        
         }   
@@ -109,36 +113,46 @@ public:
          delete[] keys;
     }
 
+    void setEnv(Env** envs, int num){
+        for(int i = 0; i < num; i++){
+            if(i < polylimit)
+                if(envs[i])
+                keys[i].setEnv(envs[i]);
+        }
+    }
+
     void setKey(int note, int on){
-        bool found = false;
-        for (int i = 0; i < polylimit; i++){
+        //found:
+        for(int i = 0; i < polylimit; i++){
             if(keys[i].note == note){
                 keys[i].on = on;
-                found = true;
                 m.value[i]._n.note = note;
                 m.value[i]._n.on = on;
-                break;
+                return;
             }
-        }
-        if(!found){
+        } //not found:
+        if(on){
             for(int i = 0; i < polylimit; i++){
-                if(keys[i].ready()){    
+                 if(keys[i].ready()){
                     keys[i].note = note;
                     keys[i].on = on;
                     m.value[i]._n.note = note;
                     m.value[i]._n.on = on;
-                    break;
-                }
-            }
+                    return;               
+                 }
+            }//full: (replace with queue to steal oldest)
+            keys[0].note = note;
+            keys[0].on = on;
+            m.value[0]._n.note = note;
+            m.value[0]._n.on = on;
         }
 
     }
 
-    inline void run(Msg _m){
+    void run(Msg _m){
         for(int i = 0; i < _m.num; i++){
             setKey(i+baseNote, _m.value[i]._i);
         }
-
     }
 
     void setBaseNote(unsigned int note){
@@ -172,18 +186,19 @@ public:
         range = sizeof(keymap_s)/sizeof(keymap_s[0]);
     }
 
-    inline void run(Msg _m){
+    void run(Msg _m){
         for(int i = 0; i < range; i++){
             setKey(i+baseNote, (bool)GetAsyncKeyState(keymap[i]));
         }
     }
-    inline void run(){
+    void run(){
         for(int i = 0; i < range; i++){
             setKey(i+baseNote, (bool)GetAsyncKeyState(keymap[i]));
         }
     }
 
 };
+
 
 
 #endif /* SOUNDLIB_CTL_H */

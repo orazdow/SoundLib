@@ -11,8 +11,8 @@ poly --> setEnvs(Env* envs), setEnvs(Voice* voices), setPVoice(polyvoice p)
 add:
 -cycle detection
 -signal chain...
+-input~, output~
 -control params (in msg..)
--osc class
 -add msg format field 
 -error handling on receive message side (wrong format)
 -copy assignment operator
@@ -31,7 +31,7 @@ wavplayer
 fft
 comb
 ctl seq
-not maps
+note maps
 -----------
 now:
 sig, env template, sinosc, ar env, voice, polyvoice, add init guard

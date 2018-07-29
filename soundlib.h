@@ -95,10 +95,10 @@ public:
 
 protected:
 
-    int master = 1;
+    int master = 0;
     
-    inline void call(Msg _m){ 
-        // do stuff, alter m
+    void call(Msg _m){ 
+        // do stuff, alter m..
         if(_m.num){ 
             run(_m);
         }else{
@@ -107,7 +107,7 @@ protected:
         callChildren(m);
     }
 
-    inline void call(){ 
+    void call(){ 
         run(); 
         callChildren(m);
     }
@@ -117,7 +117,7 @@ protected:
          m.value = new Val[num];
     }    
     
-    inline void callChildren(Msg _m){ 
+    void callChildren(Msg _m){ 
         for(auto p : childs)
             p.second->call(_m);
     }
@@ -141,6 +141,15 @@ public:
    virtual void reset(){}
 };
 
+/**** Voice base ****/
+class Voice : public Sig, public Ctl{
+public:
+    virtual float out(float freq, int trig){ return 0; } 
+    virtual float out(int note, int trig){ return 0; }
+    virtual float out(Note note){ return 0; }
+    virtual float out(){ return 0; }
+    virtual Env* getEnv(){return NULL;}
+};
 
 /***** Ctl root class *****/
 class Glob_Ctl : public Ctl{

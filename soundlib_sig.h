@@ -23,13 +23,13 @@ public:
     }
    ~Osc(){}
  
-    inline float out(double freq){
+    float out(double freq){
         phase += freq*step_rate;
         if(phase >= tsize){ phase -= tsize; }       
         return output = lerp(table[(int)phase], table[(int)phase+1], phase);       
     }
    
-    inline float out(){
+    float out(){
         phase += step;
         if(phase >= tsize){ phase -= tsize; }       
         return output = lerp(table[(int)phase], table[(int)phase+1], phase);       
@@ -44,7 +44,7 @@ class Adsr : public Env{
     float s = 0.7;
     float astep = 0.0001;
     float dstep = 0.0001;
-    float rstep = 0.00001;
+    float rstep = 0.0001;
 
 public:
 
@@ -96,6 +96,48 @@ public:
 
 };
 
+
+/**** Voice base class ****\
+class Voice : public Sig, public Ctl{
+public:
+    virtual float out(float freq, int trig){ return 0; } 
+    virtual float out(int note, int trig){ return 0; }
+    virtual float out(Note note){ return 0; }
+    virtual float out(){ return 0; }
+    virtual Env* getEnv(){return NULL;}
+
+};
+*/
+
+class TestVoice : public Voice{
+
+    Osc osc;
+    Adsr env;
+    unsigned int on;
+    float hz;
+    Env* env_ptr;
+public:
+
+    TestVoice(){
+        msg_alloc(1);
+        env_ptr = &env;
+    }
+
+    void run(Msg _m){
+        m.value[0]._n = _m.value[0]._n;
+        hz = mtof(m.value[0]._n.note);
+        on = m.value[0]._n.on;
+    }
+
+    float out(){
+        return osc.out(hz)*env.out(on);
+    }
+
+    Env* getEnv(){
+        return env_ptr;
+    }
+
+};
 
 
 #endif /* SOUNDLIB_SIG_H */

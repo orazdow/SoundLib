@@ -12,11 +12,11 @@ enum msg_fmt { u32, u32_f, note };
 
 static unsigned int sampling_rate = 44100;
 static const unsigned int table_size = 512;
+static double step_rate = table_size/(double)sampling_rate;
+// step = freq*stepRate
 
 static const double pi = acos(0)*2;
 static const double tau = 2*pi;
-static double step_rate = table_size/(double)sampling_rate;
-// step = freq*stepRate
 
 static float sinetable[table_size+1];
 static double notes[128];
@@ -30,6 +30,23 @@ void initSineTable(float table[], int tsize, bool guard_point){
     }
     if(guard_point)
         table[tsize] = table[0];
+}
+
+static double numToFreq(int n){
+     return 130.813*pow(2, (n-48)/(double)12);
+}
+
+void fillNotes(double notes[], int len, int tablesize, double samplerate){
+    for(int i = 0; i < len; i++){
+     notes[i] = numToFreq(i);
+    }
+}
+
+/**** mtof ****/
+static double mtof(int note){
+	if(note < 0){ note = 0;}
+	else if(note > 127){ note = 127;}
+	return notes[note];
 }
 
 /**** lerp ****/
@@ -65,6 +82,7 @@ void init_keymap(){
 void init_globals(){
 	init_keymap();
 	initSineTable(sinetable, table_size, true);
+    fillNotes(notes, 128, table_size, sampling_rate);
 };
 
 #endif /* SOUNDLIB_GLOB_H */
