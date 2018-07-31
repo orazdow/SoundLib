@@ -16,6 +16,7 @@ XyFade(a,b,c,d)
 Sum
 msgPrint
 makeNote 
+makeParam
 key callback fn !
 --------------------------
 add:
@@ -37,6 +38,7 @@ filters
 sinosc
 fncgen
 noise
+samplehold
 fmosc
 delay
 wavplayer

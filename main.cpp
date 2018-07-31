@@ -40,7 +40,6 @@ int main(){
     Pa a(paFunc, s);
     a.start();
 
-
 	while(1){
 		call_ctl(); 
 		 // printf("%f %f\r", m->m.value[0]._f, m->m.value[1]._f);

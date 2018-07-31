@@ -41,7 +41,6 @@ public:
 
     Msg m = {0,0,0};
     unsigned int id; 
-    bool indexed = 0;
     std::map <int, Ctl*> childs;
     Ctl* parent;
 
@@ -84,8 +83,6 @@ public:
         childs.erase(child->id);
     }
     
-    // connect, disconnect(Ctl**) won't work with derived raw ptrs..
-
 protected:
 
     int master = 0;
@@ -100,24 +97,16 @@ protected:
         callChildren(m);
     }
 
-    // not used
     void call(){ 
         run(); 
         callChildren(m);
     }
 
-    // indexing:
     void callChildren(Msg _m){ 
-        if(!indexed){
-            for(auto p : childs)
-                p.second->call(_m);
-        }else
-        {
-            int i = 0;
-            for(auto p : childs){
-                _m.index = i++;
-                p.second->call(_m);
-            }
+        int i = 0;
+        for(auto p : childs){
+            _m.index = i++;
+            p.second->call(_m);
         }
     }
 

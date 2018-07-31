@@ -117,8 +117,7 @@ public:
         for(int i = 0; i < num; i++){
             if(i < polylimit)
                 if(envs[i])
-                keys[i].setEnv(envs[i]);
-            
+                keys[i].setEnv(envs[i]); 
         }
     }
 
