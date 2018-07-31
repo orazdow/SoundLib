@@ -32,12 +32,8 @@ int main(){
 
 	// Osc* o = new Osc(200);
 	// TestVoice* v = new TestVoice();
-
 	// p.connect(v);
-	//p.setEnv(v->getEnv(), 0);
-	// Env* e = v->getEnv();
-	// p.setEnv(&e, 1);
-	// printf("%s\n", v->getEnv()->ha);
+
 	Synth* s = new Synth;
 	p.connect(s);
 	p.setEnvs(s->getEnvs(), 8);

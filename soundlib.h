@@ -31,7 +31,6 @@ struct Msg{
     Val* value;
     size_t num;
     int index;
-    // fmt
 };
 
 

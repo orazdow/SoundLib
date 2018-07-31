@@ -166,7 +166,6 @@ public:
 
 
 class TestVoice : public Voice{
-
     FnGen* osc1;
     FnGen* osc2;
     Adsr* env;
@@ -187,11 +186,6 @@ public:
         delete osc1;
         delete osc2;
         delete env;
-    }
-
-    void run(Msg _m){ //-- indexing --
-        hz = mtof(_m.value[_m.index]._n.note);
-        on = _m.value[_m.index]._n.on; 
     }
 
     float out(){
@@ -217,32 +211,27 @@ public:
 
     Synth(){
         num = 8;
-        indexed = true; //---
         msg_alloc(num);
         voices = new TestVoice[num];
         envs = new Env*[num];   
         for(int i = 0; i < num; i++)
              envs[i] = voices[i].getEnv();               
-
-         for(int i = 0; i < num; i++) // ----
-            connect(&voices[i]);       
     }
 
     float out(){
         output = 0;
         for(int i = 0; i < num; i++){ 
-            // output+= 0.125*voices[i].out(m.value[i]._n); //---
-            output+= 0.125*voices[i].out();
+            output+= 0.125*voices[i].out(m.value[i]._n);
         }
         return output;
-    }
-        
-    Env** getEnvs(){
-        return envs;
     }
 
     void run(Msg _m){
        copy_msg(_m);
+    }
+        
+    Env** getEnvs(){
+        return envs;
     }
 
 };
