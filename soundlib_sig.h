@@ -5,13 +5,10 @@
 
 /**** sin osc ****/
 class Osc : public Sig{
-
 	double phase = 0, step = 0;
 	float* table;
 	unsigned int tsize; 
-
 public:
-
     Osc(){
         table = sinetable;
         tsize = table_size;
@@ -21,21 +18,92 @@ public:
         tsize = table_size;
         step = freq*step_rate;
     }
-   ~Osc(){}
- 
+   ~Osc(){} 
     float out(double freq){
         phase += freq*step_rate;
         if(phase >= tsize){ phase -= tsize; }       
         return output = lerp(table[(int)phase], table[(int)phase+1], phase);       
-    }
-   
+    }  
     float out(){
         phase += step;
         if(phase >= tsize){ phase -= tsize; }       
         return output = lerp(table[(int)phase], table[(int)phase+1], phase);       
    }
+};
+
+
+/**** function gen ****/
+class FnGen : public Sig{
+
+    double step = 1/(double)sampling_rate;
+    double phase, freq;
+    float (FnGen::*func)(double freq) = &FnGen::sin;
+
+public:
+
+    FnGen(){}
+    FnGen(int wave){ setWave(wave); }
+    FnGen(double freq){ this->freq = freq; }
+
+    // waves: sl::sin, sl::cos, sl::saw, sl::tri, sl::square 
+    void setWave(int a){ 
+        switch(a){
+            case 0: func = &FnGen::sin; break;
+            case 1: func = &FnGen::cos; break;
+            case 2: func = &FnGen::ramp; break;
+            case 3: func = &FnGen::tri; break;
+            case 4: func = &FnGen::square; break;
+        }
+    }
+
+    float out(double freq){ 
+        return (this->*func)(freq); 
+    }
+    float out(){ 
+        return (this->*func)(freq); 
+    }
+
+    float sin(double freq){
+        phase += freq*tau*step;
+        if(phase > tau){ phase -= tau; }
+        return output = std::sin(phase);
+    }
+
+    float cos(double freq){
+        phase += freq*tau*step;
+        if(phase > tau){ phase -= tau; }
+        return output = std::cos(phase);
+    }
+
+    float ramp(double freq){
+        phase += freq*step;
+        if(phase >= 1){ phase -= 1;}
+        return output = phase;        
+    }
+
+    float tri(double freq){
+        phase += freq*step;
+        if(phase >= 1){ phase -= 1;}
+
+        if(phase <= 0.5){
+        output = phase;
+        }else{
+        output = 1.0 - phase;
+        }
+        output = (output-0.25)*4;
+        return output;
+    }
+
+    float square(double freq){
+        phase += freq*step;
+        if(phase >= 1){ phase -= 1;}
+        if(phase >= 0.5)
+            return output = 1;
+        else return output = -1;
+    }
 
 };
+
 
 /**** ASDR env ****/
 class Adsr : public Env{
@@ -44,7 +112,7 @@ class Adsr : public Env{
     float s = 0.7;
     float astep = 0.0001;
     float dstep = 0.0001;
-    float rstep = 0.0001;
+    float rstep = 0.00001;
 
 public:
 
@@ -97,44 +165,84 @@ public:
 };
 
 
-/**** Voice base class ****\
-class Voice : public Sig, public Ctl{
-public:
-    virtual float out(float freq, int trig){ return 0; } 
-    virtual float out(int note, int trig){ return 0; }
-    virtual float out(Note note){ return 0; }
-    virtual float out(){ return 0; }
-    virtual Env* getEnv(){return NULL;}
-
-};
-*/
-
 class TestVoice : public Voice{
 
-    Osc osc;
-    Adsr env;
+    FnGen* osc1;
+    FnGen* osc2;
+    Adsr* env;
+    Env* env_ptr;
     unsigned int on;
     float hz;
-    Env* env_ptr;
+
 public:
 
-    TestVoice(){
-        msg_alloc(1);
-        env_ptr = &env;
+    TestVoice(){ 
+        osc1 = new FnGen(sl::tri);
+        osc2 = new FnGen(sl::tri);
+        env = new Adsr();
+        env_ptr = env;
     }
 
-    void run(Msg _m){
-        m.value[0]._n = _m.value[0]._n;
-        hz = mtof(m.value[0]._n.note);
-        on = m.value[0]._n.on;
+    ~TestVoice(){
+        delete osc1;
+        delete osc2;
+        delete env;
+    }
+
+    void run(Msg _m){ //-- indexing --
+        hz = mtof(_m.value[_m.index]._n.note);
+        on = _m.value[_m.index]._n.on; 
     }
 
     float out(){
-        return osc.out(hz)*env.out(on);
+        return 0.7*(osc1->out(hz)+osc2->out(hz*0.99))*env->out(on);
+    }
+
+    float out(Note note){
+        hz = mtof(note.note);
+        on = note.on;
+        return 0.7*(osc1->out(hz)+osc2->out(hz*0.99))*env->out(on);
     }
 
     Env* getEnv(){
         return env_ptr;
+    }
+
+};
+
+class Synth : public PolyVoice{
+    TestVoice* voices;
+    Env** envs;
+public:
+
+    Synth(){
+        num = 8;
+        indexed = true; //---
+        msg_alloc(num);
+        voices = new TestVoice[num];
+        envs = new Env*[num];   
+        for(int i = 0; i < num; i++)
+             envs[i] = voices[i].getEnv();               
+
+         for(int i = 0; i < num; i++) // ----
+            connect(&voices[i]);       
+    }
+
+    float out(){
+        output = 0;
+        for(int i = 0; i < num; i++){ 
+            // output+= 0.125*voices[i].out(m.value[i]._n); //---
+            output+= 0.125*voices[i].out();
+        }
+        return output;
+    }
+        
+    Env** getEnvs(){
+        return envs;
+    }
+
+    void run(Msg _m){
+       copy_msg(_m);
     }
 
 };

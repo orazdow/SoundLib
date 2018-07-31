@@ -8,8 +8,6 @@ static Ctl* glob_ctl;
 static bool GLOB_SET = 0;
 static unsigned int g_id = 0;
 
-enum msg_fmt { u32, u32_f, note };
-
 static unsigned int sampling_rate = 44100;
 static const unsigned int table_size = 512;
 static double step_rate = table_size/(double)sampling_rate;
@@ -17,6 +15,11 @@ static double step_rate = table_size/(double)sampling_rate;
 
 static const double pi = acos(0)*2;
 static const double tau = 2*pi;
+
+// namespace constants
+namespace sl{
+	static const int sin = 0, cos = 1, ramp = 2, saw = 2, tri = 3, square = 4; 
+}
 
 static float sinetable[table_size+1];
 static double notes[128];

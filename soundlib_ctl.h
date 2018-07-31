@@ -81,7 +81,7 @@ public:
         bool on;  
         bool envset = 0;
         Env* env;
-        bool ready(){
+        bool ready(){ 
             return !(on || (envset && env->on));
         }
         void setEnv(Env* e){
@@ -113,11 +113,12 @@ public:
          delete[] keys;
     }
 
-    void setEnv(Env** envs, int num){
+    void setEnvs(Env** envs, int num){
         for(int i = 0; i < num; i++){
             if(i < polylimit)
                 if(envs[i])
                 keys[i].setEnv(envs[i]);
+            
         }
     }
 

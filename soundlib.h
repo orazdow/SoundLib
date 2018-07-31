@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <map>
+#include <memory>
 #include <stdio.h>
 #include "soundlib_glob.h"
 
@@ -29,6 +30,8 @@ union Val{
 struct Msg{
     Val* value;
     size_t num;
+    int index;
+    // fmt
 };
 
 
@@ -37,9 +40,11 @@ class Ctl{
 
 public:
 
-    Msg m = {0,0};
+    Msg m = {0,0,0};
     unsigned int id; 
+    bool indexed = 0;
     std::map <int, Ctl*> childs;
+    Ctl* parent;
 
     Ctl(int _master = 0){
         if(_master)
@@ -61,7 +66,7 @@ public:
         }
     }
 
-    virtual ~Ctl(){
+    virtual ~Ctl(){ 
         delete[] m.value;
     }
 
@@ -71,27 +76,16 @@ public:
 
     void connect(Ctl* child){ 
         childs[child->id] = child;
+        child->parent = this;
         if(!master)
             glob_ctl->disconnect(child);
     }
     
-    void connect(Ctl** child, int num){
-        for(int i = 0; i < num; i++){
-            childs[child[i]->id] = child[i];
-            if(!master)
-                glob_ctl->disconnect(child[i]);
-        }
-    }
-
     void disconnect(Ctl* child){
         childs.erase(child->id);
     }
     
-    void disconnect(Ctl** child, int num){
-        for(int i = 0; i < num; i++){
-            childs.erase(child[i]->id);
-        }
-    }
+    // connect, disconnect(Ctl**) won't work with derived raw ptrs..
 
 protected:
 
@@ -107,20 +101,37 @@ protected:
         callChildren(m);
     }
 
+    // not used
     void call(){ 
         run(); 
         callChildren(m);
+    }
+
+    // indexing:
+    void callChildren(Msg _m){ 
+        if(!indexed){
+            for(auto p : childs)
+                p.second->call(_m);
+        }else
+        {
+            int i = 0;
+            for(auto p : childs){
+                _m.index = i++;
+                p.second->call(_m);
+            }
+        }
     }
 
     void msg_alloc(size_t num){ 
          m.num = num;
          m.value = new Val[num];
     }    
-    
-    void callChildren(Msg _m){ 
-        for(auto p : childs)
-            p.second->call(_m);
-    }
+    // convenience func
+    void copy_msg(Msg _m){
+        for(int i = 0; i < m.num; i++){
+            m.value[i] = _m.value[i];
+        }
+    }    
 
 };
 
@@ -133,7 +144,7 @@ public:
     virtual float out(double step){ return 0;}
 };
 
-/***** env base *****/
+/***** Env base *****/
 class Env : public Sig{
 public: 
    unsigned int on = 0; 
@@ -149,6 +160,16 @@ public:
     virtual float out(Note note){ return 0; }
     virtual float out(){ return 0; }
     virtual Env* getEnv(){return NULL;}
+};
+
+/**** PolyVoice base ****/
+class PolyVoice :  public Sig, public Ctl{
+public:
+    int num;
+    virtual float out(int note, int trig){ return 0; }
+    virtual float out(Note note){ return 0; }
+    virtual float out(){ return 0; }
+    virtual Env** getEnvs(){return NULL;}    
 };
 
 /***** Ctl root class *****/
