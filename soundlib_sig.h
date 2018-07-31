@@ -187,6 +187,11 @@ public:
         delete osc2;
         delete env;
     }
+    
+    // void run(Msg _m){ //-- indexing --
+    //     hz = mtof(_m.value[_m.index]._n.note);
+    //     on = _m.value[_m.index]._n.on; 
+    // }
 
     float out(){
         return 0.7*(osc1->out(hz)+osc2->out(hz*0.99))*env->out(on);
@@ -222,12 +227,13 @@ public:
         output = 0;
         for(int i = 0; i < num; i++){ 
             output+= 0.125*voices[i].out(m.value[i]._n);
+          //  output+= 0.125*voices[i].out();
         }
         return output;
     }
 
     void run(Msg _m){
-       // get nptes 
+       // get notes 
        copy_msg(_m);
     }
         

@@ -97,11 +97,7 @@ protected:
         callChildren(m);
     }
 
-    void call(){ 
-        run(); 
-        callChildren(m);
-    }
-
+    // index always added
     void callChildren(Msg _m){ 
         int i = 0;
         for(auto p : childs){
