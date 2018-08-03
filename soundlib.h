@@ -5,7 +5,6 @@
 
 #include <stdint.h>
 #include <map>
-#include <memory>
 #include <stdio.h>
 #include "soundlib_glob.h"
 
@@ -71,12 +70,14 @@ public:
     // user override
     virtual void run(){}
     virtual void run(Msg _m){}
+    virtual void onConnect(Ctl* child){}
 
     void connect(Ctl* child){ 
         childs[child->id] = child;
         child->parent = this;
         if(!master)
             glob_ctl->disconnect(child);
+        onConnect(child);
     }
     
     void disconnect(Ctl* child){
@@ -108,7 +109,7 @@ protected:
 
     void msg_alloc(size_t num){ 
          m.num = num;
-         m.value = new Val[num];
+         m.value = new Val[num]();
     }    
     // convenience func
     void copy_msg(Msg _m){
@@ -123,9 +124,10 @@ protected:
 /**** Sig base ****/
 class Sig{ 
 public:
-    float input, output;
+    float* input;
+    float  output;
     virtual float out(){ return 0;}
-    virtual float out(double step){ return 0;}
+    virtual float out(double freq){ return 0;}
 };
 
 /***** Env base *****/
@@ -142,7 +144,7 @@ public:
     virtual float out(float freq, int trig){ return 0; } 
     virtual float out(int note, int trig){ return 0; }
     virtual float out(Note note){ return 0; }
-    virtual float out(){ return 0; }
+    virtual float out(){ return 0; }  
     virtual Env* getEnv(){return NULL;}
 };
 
@@ -162,7 +164,6 @@ public:
     Glob_Ctl() : Ctl(1){}
     void run(){ callChildren(m); }
 };
-
 
 /********  init  *************/
 void sl_init(){

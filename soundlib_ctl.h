@@ -59,8 +59,6 @@ public:
 
     void run(){
        GetCursorPos(&point);
-       // x = lerp(x, point.x, 0.3);
-       // y = lerp(y, point.y, 0.3);
        x = point.x;
        y = point.y;
        m.value[0]._f = x/(float)width;
@@ -77,16 +75,16 @@ public:
     int baseNote = 48;
     
     struct key{
-        int note;
-        bool on;  
+        int note = 0;
+        bool on = 0;  
         bool envset = 0;
         Env* env;
         bool ready(){ 
             return !(on || (envset && env->on));
         }
-        void setEnv(Env* e){
+        void setEnv(Env* e){ 
            env = e; 
-           envset = 1;
+           envset = 1; 
        }
     };
 
@@ -118,6 +116,16 @@ public:
             if(i < polylimit)
                 if(envs[i])
                 keys[i].setEnv(envs[i]); 
+        }
+    }
+
+    void setEnvs(PolyVoice* p){
+        setEnvs(p->getEnvs(), p->num);
+    }
+
+    void onConnect(Ctl* child){
+        if(dynamic_cast<PolyVoice*>(child)){
+            setEnvs((PolyVoice*)child);
         }
     }
 

@@ -169,17 +169,15 @@ class TestVoice : public Voice{
     FnGen* osc1;
     FnGen* osc2;
     Adsr* env;
-    Env* env_ptr;
     unsigned int on;
     float hz;
 
 public:
 
     TestVoice(){ 
-        osc1 = new FnGen(sl::tri);
-        osc2 = new FnGen(sl::tri);
+        osc1 = new FnGen(sl::saw);
+        osc2 = new FnGen(sl::saw);
         env = new Adsr();
-        env_ptr = env;
     }
 
     ~TestVoice(){
@@ -194,17 +192,17 @@ public:
     // }
 
     float out(){
-        return 0.7*(osc1->out(hz)+osc2->out(hz*0.99))*env->out(on);
+        return 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
     }
 
     float out(Note note){
         hz = mtof(note.note);
         on = note.on;
-        return 0.7*(osc1->out(hz)+osc2->out(hz*0.99))*env->out(on);
+        return 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
     }
 
     Env* getEnv(){
-        return env_ptr;
+        return env;
     }
 
 };
@@ -212,22 +210,36 @@ public:
 class Synth : public PolyVoice{
     TestVoice* voices;
     Env** envs;
-public:
 
-    Synth(){
-        num = 8;
+    void init(int _num){
+        num = _num;
         msg_alloc(num);
         voices = new TestVoice[num];
         envs = new Env*[num];   
-        for(int i = 0; i < num; i++)
-             envs[i] = voices[i].getEnv();               
+        for(int i = 0; i < num; i++){
+             envs[i] = voices[i].getEnv();  
+           //  connect(voices+i);
+        }        
+    }
+
+public:
+
+    Synth(){
+        init(8);         
+    }
+    Synth(int _num){
+        init(_num);
+    }
+    ~Synth(){
+        delete[] voices;
+        delete[] envs;
     }
 
     float out(){
         output = 0;
         for(int i = 0; i < num; i++){ 
             output+= 0.125*voices[i].out(m.value[i]._n);
-          //  output+= 0.125*voices[i].out();
+         //   output+= 0.125*voices[i].out();
         }
         return output;
     }

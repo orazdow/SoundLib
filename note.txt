@@ -21,8 +21,11 @@ key callback fn !
 --------------------------
 add:
 -msg format field 
+-bus
+-sig_ctl
 -onConnect() event in Ctl..
 -make poly receive notes (now makenote is integrated)
+-midi filter define
 -cycle detection
 -signal chain...
 -input~, output~
@@ -45,6 +48,7 @@ wavplayer
 fft
 comb
 ctl seq
+microtuning
 note maps
 -----------
 -add init guard
