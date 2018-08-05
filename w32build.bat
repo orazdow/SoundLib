@@ -12,22 +12,22 @@ mkdir %builddir%
 
 SET libdirs=/LIBPATH:D:\Libraries\portaudio\build\msvc
 SET libs=portaudio_x86.lib 
-
+rem SET libs=portaudio_static.lib 
 SET includes=/ID:\Libraries\portaudio\include 
 
-set debug=/Zi /DEBUG
+rem set debug=/Zi /DEBUG
+rem set static=/MT
 
 SET files=main.cpp pa.cpp
 
-SET opts=/Fe%target% /Fo%builddir%\ %debug%
-rem SET opts=/Fe%builddir%/%target% /Fo%builddir%/
+SET opts=/Fe%target% /Fo%builddir%\ %static% %debug%
 
 cl %opts% %includes% %files% /link %libdirs% %libs%
 
 GOTO end
 
 :args
-IF [%1]==[clean] (rmdir %builddir% del %target%)
+IF [%1]==[clean] (rmdir /s /q %builddir% & del %target%)
 IF [%1]==[run] (%target%)
 
 :end

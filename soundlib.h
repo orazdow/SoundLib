@@ -1,7 +1,15 @@
 #ifndef SOUNDLIB_H
 #define SOUNDLIB_H
 
-#pragma comment (lib, "User32.lib")
+#define static_build 0
+
+#pragma comment (lib, "user32.lib")
+
+#if static_build
+    #pragma comment(lib, "advapi32.lib")
+    #pragma comment(lib, "ole32.lib")
+    #pragma comment(lib, "winmm.lib")
+#endif
 
 #include <stdint.h>
 #include <map>
