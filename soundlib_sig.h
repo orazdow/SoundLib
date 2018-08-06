@@ -76,8 +76,8 @@ public:
     }
 
     float ramp(double freq){
-        phase += freq*step;
-        if(phase >= 1){ phase -= 1;}
+        phase += freq*2*step;
+        if(phase >= 1){ phase -= 2;}
         return output = phase;        
     }
 
@@ -102,6 +102,35 @@ public:
         else return output = -1;
     }
 
+};
+
+/**** 1pole lowpass ****/
+class Lp : public Sig{
+    double cutoff = 500, in1 = 1, norm = 1, a = 1, b = 1;
+public:
+    void setCutoff(double hz){
+        cutoff = hz;
+        hz *= pi;
+        norm = 1.0/(hz+sampling_rate);
+        a = hz*norm;
+        b = (sampling_rate-hz)*norm;
+    }
+
+    float filter(double in, double cutoff){
+        setCutoff(cutoff);
+        output = in*a + in1*a + output*b;
+        in1 = in;
+        return output;
+    }
+
+    float out(double in){
+        output = in*a + in1*a + output*b;
+        in1 = in;
+        return output;
+    } 
+
+    Lp(double hz){ setCutoff(hz);}
+    Lp();
 };
 
 
@@ -173,7 +202,7 @@ class TestVoice : public Voice{
     float hz;
 
 public:
-
+    
     TestVoice(){ 
         osc1 = new FnGen(sl::saw);
         osc2 = new FnGen(sl::saw);
@@ -210,6 +239,8 @@ public:
 class Synth : public PolyVoice{
     TestVoice* voices;
     Env** envs;
+    Lp filt = Lp(200);
+    FnGen* lfo;
 
     void init(int _num){
         num = _num;
@@ -219,11 +250,11 @@ class Synth : public PolyVoice{
         for(int i = 0; i < num; i++){
              envs[i] = voices[i].getEnv();  
            //  connect(voices+i);
-        }        
+        }     
+        lfo = new FnGen(sl::square); 
     }
 
 public:
-
     Synth(){
         init(8);         
     }
@@ -233,6 +264,7 @@ public:
     ~Synth(){
         delete[] voices;
         delete[] envs;
+        delete lfo;
     }
 
     float out(){
@@ -241,7 +273,7 @@ public:
             output+= 0.125*voices[i].out(m.value[i]._n);
          //   output+= 0.125*voices[i].out();
         }
-        return output;
+        return output = filt.filter(output,1500.0*(lfo->out(2)+1.3));
     }
 
     void run(Msg _m){

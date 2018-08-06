@@ -65,6 +65,9 @@ public:
        m.value[1]._f = y/(float)height;
     }
 
+    float getX(){return m.value[0]._f;}
+    float getY(){return m.value[1]._f;}
+
 };
 
 /***** poly handler *****/

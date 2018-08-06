@@ -135,7 +135,7 @@ public:
     float* input;
     float  output;
     virtual float out(){ return 0;}
-    virtual float out(double freq){ return 0;}
+    virtual float out(double in){ return 0;}
 };
 
 /***** Env base *****/

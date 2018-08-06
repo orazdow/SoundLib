@@ -58,6 +58,10 @@ static inline double lerp(double v0, double v1, double t) {
   return v0 + fracpart * (v1 - v0);
 } 
 
+static double crossfade(double a, double b, double ratio){
+    return a*ratio + b*(1.0-ratio);
+}
+
 void init_keymap(){
     keymap_s[0] = 'A';
     keymap_s[1] = 'Z';

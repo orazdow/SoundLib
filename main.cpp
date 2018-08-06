@@ -15,7 +15,7 @@ void paFunc(const float* in, float* out, unsigned long frames, void* data){
     
     for(unsigned long i = 0; i < frames; i++){
     	// *out++ = o->out(m->m.value[1]._f*1000);
-    	 *out++ =  s->out();
+    	 *out++ =  s->out()*1.5;
     }
 }
 
