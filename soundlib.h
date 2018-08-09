@@ -45,7 +45,6 @@ struct Msg{
 class Ctl{
 
 public:
-
     Msg m = {0,0,0};
     unsigned int id; 
     std::map <int, Ctl*> childs;
@@ -93,7 +92,6 @@ public:
     }
     
 protected:
-
     int master = 0;
     
     void call(Msg _m){ 
@@ -128,7 +126,6 @@ protected:
 
 };
 
-
 /**** Sig base ****/
 class Sig{ 
 public:
@@ -136,6 +133,56 @@ public:
     float  output;
     virtual float out(){ return 0;}
     virtual float out(double in){ return 0;}
+    virtual void connect(Sig* sig){ sig->input = &output; }
+    virtual void disconnect(Sig* sig){ sig->input = NULL; }
+};
+
+
+/**** Sig chain base ****/
+class SigChain : public Sig{
+
+public:
+    unsigned int id; 
+    std::map <int, SigChain*> childs;
+
+    SigChain(int _master = 0){
+        if(_master)
+        if(!GLOB_SIG_SET){ 
+            master = 1;
+            GLOB_SIG_SET = 1;
+        }
+        this->id = ++g_id;  
+        if(!_master){
+            glob_sig->connect(this); 
+        }
+    }
+
+    virtual void dsp(){}
+    
+    void connect(SigChain* sig){ 
+        sig->input = &output;
+        childs[sig->id] = sig;
+            if(!master)
+                glob_sig->disconnect(sig);          
+    }
+    void disconnect(SigChain* sig){ 
+        sig->input = NULL;
+        childs.erase(sig->id); 
+    }
+
+protected:
+    int master = 0;
+    void call(){ 
+        dsp();
+        callChildren();     
+    }
+
+    void callChildren(){ 
+        for(auto p : childs){
+            p.second->call();   
+        }
+    } 
+
 };
 
 /***** Env base *****/
@@ -154,6 +201,9 @@ public:
     virtual float out(Note note){ return 0; }
     virtual float out(){ return 0; }  
     virtual Env* getEnv(){return NULL;}
+
+    void connect(Sig* s){Sig::connect(s);}
+    void disconnect(Sig* s){Sig::disconnect(s);}  
 };
 
 /**** PolyVoice base ****/
@@ -163,7 +213,10 @@ public:
     virtual float out(int note, int trig){ return 0; }
     virtual float out(Note note){ return 0; }
     virtual float out(){ return 0; }
-    virtual Env** getEnvs(){return NULL;}    
+    virtual Env** getEnvs(){return NULL;}  
+    
+    void connect(Sig* s){Sig::connect(s);}
+    void disconnect(Sig* s){Sig::disconnect(s);}  
 };
 
 /***** Ctl root class *****/
@@ -173,9 +226,17 @@ public:
     void run(){ callChildren(m); }
 };
 
+/***** Sig root class *****/
+class Glob_Sig : public SigChain{
+public:
+    Glob_Sig() : SigChain(1){}
+    void dsp(){ callChildren(); }
+};
+
 /********  init  *************/
 void sl_init(){
     glob_ctl = new Glob_Ctl();
+    glob_sig = new Glob_Sig();
     init_globals();
 }
 
@@ -183,5 +244,7 @@ void call_ctl(){
     glob_ctl->run();
 }
 
-
+void call_sig(){
+    glob_sig->dsp();
+}
 #endif /* SOUNDLIB_H */

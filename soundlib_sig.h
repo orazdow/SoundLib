@@ -129,8 +129,14 @@ public:
         return output;
     } 
 
+    float out(){
+        output = *input*a + in1*a + output*b;
+        in1 = *input;
+        return output;
+    } 
+
     Lp(double hz){ setCutoff(hz);}
-    Lp();
+    Lp(){};
 };
 
 
@@ -251,7 +257,7 @@ class Synth : public PolyVoice{
              envs[i] = voices[i].getEnv();  
            //  connect(voices+i);
         }     
-        lfo = new FnGen(sl::square); 
+        lfo = new FnGen(sl::saw); 
     }
 
 public:
@@ -286,6 +292,51 @@ public:
     }
 
 };
+
+/**** VU meter o _O ****/
+class VuMeter : public SigChain, public Ctl{
+    int len = 128;
+    float* buffer;
+    int index = 0;
+    float lev, _lev;
+    int num;
+public:
+
+    VuMeter(){
+       buffer = new float[len];
+    }
+
+    ~VuMeter(){
+        delete[] buffer;
+    }
+
+    void run(){
+        lev = 0;
+        for(int i = 0; i < len; i++){
+            lev += pow(buffer[i],2);
+        }    
+        lev = lev / (float)len;
+        lev = sqrt(lev);
+
+        _lev = lerp(_lev, lev*10, 0.3);
+        num = (int)(_lev*30);
+
+        if(num > 60) num = 60;
+        printf("                                                                 \r");
+        for(int i = 0; i < num; i++){
+            printf("=");
+        }      
+    }
+
+    void dsp(){ 
+        buffer[index] = *input;
+        index = ++index%len;
+    }
+
+    float out(){return output;}
+
+};
+
 
 
 #endif /* SOUNDLIB_SIG_H */

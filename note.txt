@@ -15,15 +15,19 @@ Crossfade
 XyFade(a,b,c,d)
 Sum
 msgPrint
-makeNote 
-makeParam
+makeNote !
+makeParam !
 key callback fn !
+ascii vu meter!
+builder class
 --------------------------
 add:
+-msg_alloc(num, type)
+-parameter msg type !!
+-param helper funcs
 -msg format field 
--bus
--sig_ctl
--onConnect() event in Ctl..
+-pushbus, mixers
+-sig_ctl!!
 -make poly receive notes (now makenote is integrated)
 -midi filter define
 -cycle detection
@@ -34,6 +38,7 @@ add:
 -copy assignment operator
 -option for seperate ctl, audio source callbacks
 -portmidi wrapper
+-rtaudio, rtmidi
 -glfw mode!
 -----------
 add:
@@ -51,9 +56,12 @@ ctl seq
 microtuning
 note maps
 -----------
+-implement stk objs
 -add init guard
 -enum msg_fmt { u32, u32_f, note }
 -params struct: {32 floats}
 -signal chain... a_glob.call->:osc.connect(filt.connect(out));
-
-
+---------------
+lang: (eventually)
+-add user defs to macro savefile
+-stack based, lamda connection based, var memory

@@ -4,8 +4,12 @@
 #include <math.h>
 
 class Ctl;
+class SigChain;
 static Ctl* glob_ctl;
+static SigChain* glob_sig;
 static bool GLOB_SET = 0;
+static bool GLOB_SIG_SET = 0;
+
 static unsigned int g_id = 0;
 
 static unsigned int sampling_rate = 44100;

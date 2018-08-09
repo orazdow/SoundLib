@@ -13,9 +13,9 @@ void paFunc(const float* in, float* out, unsigned long frames, void* data){
 	
 	Synth* s = (Synth*)data;
     
-    for(unsigned long i = 0; i < frames; i++){
-    	// *out++ = o->out(m->m.value[1]._f*1000);
-    	 *out++ =  s->out()*1.5;
+    for(unsigned long i = 0; i < frames; i++){ 
+    	 call_sig();
+    	*out++ =  s->out()*1.5;
     }
 }
 
@@ -24,11 +24,13 @@ int main(){
 
 	sl_init();
 
-	// Mouse* m = new Mouse();
-
     PolyKey p(8);
 	Synth s(8);
 	p.connect(&s);
+
+	VuMeter v;
+
+	s.connect(&v);
 	
 
     Pa a(paFunc, &s);
@@ -36,8 +38,8 @@ int main(){
 
 	while(1){
 		call_ctl(); 
-		 // printf("%f %f\r", m->m.value[0]._f, m->m.value[1]._f);
-	    disp(p.m);
+		
+	    // disp(p.m);
 		Sleep(10);
 	}	
 	a.terminate();	 
