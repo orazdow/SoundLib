@@ -50,7 +50,7 @@ public:
         switch(a){
             case 0: func = &FnGen::sin; break;
             case 1: func = &FnGen::cos; break;
-            case 2: func = &FnGen::ramp; break;
+            case 2: func = &FnGen::saw; break;
             case 3: func = &FnGen::tri; break;
             case 4: func = &FnGen::square; break;
         }
@@ -75,7 +75,7 @@ public:
         return output = std::cos(phase);
     }
 
-    float ramp(double freq){
+    float saw(double freq){
         phase += freq*2*step;
         if(phase >= 1){ phase -= 2;}
         return output = phase;        
@@ -206,6 +206,7 @@ class TestVoice : public Voice{
     Adsr* env;
     unsigned int on;
     float hz;
+    FnGen* lfo;
 
 public:
     
@@ -213,27 +214,21 @@ public:
         osc1 = new FnGen(sl::saw);
         osc2 = new FnGen(sl::saw);
         env = new Adsr();
+        lfo = new FnGen(sl::sin);
     }
 
     ~TestVoice(){
         delete osc1;
         delete osc2;
         delete env;
-    }
-    
-    // void run(Msg _m){ //-- indexing --
-    //     hz = mtof(_m.value[_m.index]._n.note);
-    //     on = _m.value[_m.index]._n.on; 
-    // }
-
-    float out(){
-        return 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
+        delete lfo;
     }
 
     float out(Note note){
-        hz = mtof(note.note);
+        hz = mtof(note.note);//+pow(lfo->out(4.3),1)*4.4; // crossfade((lfo->out(4.3),1)*4.4,1,0.04);
         on = note.on;
         return 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
+        // return osc1->sin(hz*2)*env->out(on);
     }
 
     Env* getEnv(){
@@ -277,7 +272,6 @@ public:
         output = 0;
         for(int i = 0; i < num; i++){ 
             output+= 0.125*voices[i].out(m.value[i]._n);
-         //   output+= 0.125*voices[i].out();
         }
         return output = filt.filter(output,1500.0*(lfo->out(2)+1.3));
     }
@@ -294,7 +288,7 @@ public:
 };
 
 /**** VU meter o _O ****/
-class VuMeter : public SigChain, public Ctl{
+class VUMeter : public SigChain, public Ctl{
     int len = 128;
     float* buffer;
     int index = 0;
@@ -302,11 +296,11 @@ class VuMeter : public SigChain, public Ctl{
     int num;
 public:
 
-    VuMeter(){
+    VUMeter(){
        buffer = new float[len];
     }
 
-    ~VuMeter(){
+    ~VUMeter(){
         delete[] buffer;
     }
 
@@ -333,8 +327,51 @@ public:
         index = ++index%len;
     }
 
-    float out(){return output;}
+};
 
+/**** Oscilloscope heh ****/
+class Oscilloscope : public SigChain, public Ctl{
+    
+    float* samples;
+    const int len = 60;
+    const int ylen = 24;
+    const int yl2 = ylen/2;
+    // amp >= to ylen
+    const int amp = 30;
+    // 1-4 are good ranges 
+    const int timestep = 3;
+    const float dy = 0.5;
+    bool trig = false;
+    int index = 0;
+    int step = 0;
+public:
+
+    Oscilloscope(){
+        samples = new float[len];
+    }
+    ~Oscilloscope(){ delete[] samples; }
+
+    void dsp(){
+        if(!trig){
+            if(!step){
+            samples[index] = *input;
+            index = ++index%len; 
+            } 
+            step = ++step%timestep;
+        }       
+    }
+
+    void run(){  
+        trig = true;
+        for(int y = 0; y < ylen; y++){
+            for(int x = 0; x < len; x++){ 
+               if(abs(samples[(x+index)%len]*amp - (ylen-(y+yl2))) < dy){
+                    printf("#");
+                }else{ printf(" "); }
+            }  printf("\n\r");
+        } trig = false;
+        system("CLS");
+    } 
 };
 
 

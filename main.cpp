@@ -19,7 +19,6 @@ void paFunc(const float* in, float* out, unsigned long frames, void* data){
     }
 }
 
-
 int main(){
 
 	sl_init();
@@ -28,8 +27,9 @@ int main(){
 	Synth s(8);
 	p.connect(&s);
 
-	VuMeter v;
-
+	// VUMeter v;
+	// s.connect(&v);
+	Oscilloscope v;
 	s.connect(&v);
 	
 
@@ -40,7 +40,7 @@ int main(){
 		call_ctl(); 
 		
 	    // disp(p.m);
-		Sleep(10);
+		Sleep(20);
 	}	
 	a.terminate();	 
 

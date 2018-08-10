@@ -95,7 +95,7 @@ protected:
     int master = 0;
     
     void call(Msg _m){ 
-        // do stuff, alter m..
+        // process msg..
         if(_m.num){ 
             run(_m);
         }else{

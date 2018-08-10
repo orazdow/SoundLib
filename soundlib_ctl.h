@@ -2,7 +2,6 @@
 #define SOUNDLIB_CTL_H
 
 #include "soundlib.h"
-#include "windows.h"
 
 /******
 all Ctl must call msg_alloc
