@@ -225,10 +225,11 @@ public:
     }
 
     float out(Note note){
-        hz = mtof(note.note);//+pow(lfo->out(4.3),1)*4.4; // crossfade((lfo->out(4.3),1)*4.4,1,0.04);
+        // hz = mtof(note.note+24)+pow(lfo->out(4.3),1)*4.4; // crossfade((lfo->out(4.3),1)*4.4,1,0.04);
+        hz = mtof(note.note);
         on = note.on;
         return 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
-        // return osc1->sin(hz*2)*env->out(on);
+        // return osc1->sin(hz)*env->out(on);
     }
 
     Env* getEnv(){
@@ -370,7 +371,9 @@ public:
                 }else{ printf(" "); }
             }  printf("\n\r");
         } trig = false;
-        system("CLS");
+        clearScr();
+        // setCursorPos(0,0);
+        Sleep(2); //send to buffer in print thread
     } 
 };
 

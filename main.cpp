@@ -1,7 +1,7 @@
 #include "soundlib.h"
 #include "soundlib_ctl.h"
 #include "soundlib_sig.h"
-#include "pa.h"
+#include "lib/pa.h"
 
 void disp(Msg m){ 
 	for(unsigned int i = 0; i < m.num; i++){

@@ -36,7 +36,7 @@ public:
 
     void run(){ 
         for(int i = 0; i < range; i++){
-            m.value[i]._i = (bool)GetAsyncKeyState(keymap[i]);        
+            m.value[i]._i = getKeyState(keymap[i]);        
         }   
     }
 
@@ -45,23 +45,19 @@ public:
 /**** mouse ****/
 class Mouse : public Ctl{    
 
-    POINT point;
 public:
     unsigned int width, height;
-    double x, y;
 
     Mouse(){
-        width = GetSystemMetrics(SM_CXSCREEN);
-        height = GetSystemMetrics(SM_CYSCREEN);
+        width = getScreenWidth();
+        height = getScreenHeight();
         msg_alloc(2);
     }
 
     void run(){
-       GetCursorPos(&point);
-       x = point.x;
-       y = point.y;
-       m.value[0]._f = x/(float)width;
-       m.value[1]._f = y/(float)height;
+       getCursorPos();
+       m.value[0]._f = mouseX/(float)width;
+       m.value[1]._f = mouseY/(float)height;
     }
 
     float getX(){return m.value[0]._f;}
@@ -198,12 +194,12 @@ public:
 
     void run(Msg _m){
         for(int i = 0; i < range; i++){
-            setKey(i+baseNote, (bool)GetAsyncKeyState(keymap[i]));
+            setKey(i+baseNote, getKeyState(keymap[i]));
         }
     }
     void run(){
         for(int i = 0; i < range; i++){
-            setKey(i+baseNote, (bool)GetAsyncKeyState(keymap[i]));
+            setKey(i+baseNote, getKeyState(keymap[i]));
         }
     }
 

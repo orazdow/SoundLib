@@ -20,16 +20,21 @@ makeParam !
 key callback fn !
 ascii vu meter!
 builder class
+subpatch 
+parallel connect
+primitives
 --------------------------
 add:
 -msg_alloc(num, type)
--parameter msg type !!
+-parameter msg type !
 -param helper funcs
 -msg format field 
 -pushbus, mixers
 -sig_ctl!!
 -make poly receive notes (now makenote is integrated)
 -midi filter define
+-seperate print, ui, ipc buffers
+-expr for ifft etc
 -cycle detection
 -signal chain...
 -input~, output~
@@ -39,7 +44,7 @@ add:
 -option for seperate ctl, audio source callbacks
 -portmidi wrapper
 -rtaudio, rtmidi
--glfw mode!
+-glfw mode
 -----------
 add:
 filters

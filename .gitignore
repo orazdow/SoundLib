@@ -1,5 +1,5 @@
-_soundlib
 winbuild
+build
 note2.txt
 *.exe
 *.o

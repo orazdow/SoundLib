@@ -2,7 +2,7 @@
 #define SOUNDLIB_GLOB_H
 
 #include <math.h>
-#include "windows.h"
+#include "lib/osio.h"
 
 
 class Ctl;
@@ -68,14 +68,6 @@ static double crossfade(double a, double b, double ratio){
     return a*ratio + b*(1.0-ratio);
 }
 
-void ShowConsoleCursor(bool showFlag){
-    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO cursorInfo;
-    GetConsoleCursorInfo(out, &cursorInfo);
-    cursorInfo.bVisible = showFlag; 
-    SetConsoleCursorInfo(out, &cursorInfo);
-}
-
 
 void init_keymap(){
     keymap_s[0] = 'A';
@@ -105,7 +97,7 @@ void init_globals(){
 	init_keymap();
 	initSineTable(sinetable, table_size, true);
     fillNotes(notes, 128, table_size, sampling_rate);
-    ShowConsoleCursor(false);
+    initConsole();
 };
 
 #endif /* SOUNDLIB_GLOB_H */
