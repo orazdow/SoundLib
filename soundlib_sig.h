@@ -345,12 +345,14 @@ class Oscilloscope : public SigChain, public Ctl{
     bool trig = false;
     int index = 0;
     int step = 0;
+    ConsoleBuffer* cbuffer;
 public:
 
     Oscilloscope(){
         samples = new float[len];
+        cbuffer = new ConsoleBuffer(len, ylen);
     }
-    ~Oscilloscope(){ delete[] samples; }
+    ~Oscilloscope(){ delete[] samples;  delete cbuffer; }
 
     void dsp(){
         if(!trig){
@@ -361,19 +363,21 @@ public:
             step = ++step%timestep;
         }       
     }
-
+             
     void run(){  
-        trig = true;
+        trig = true; 
         for(int y = 0; y < ylen; y++){
-            for(int x = 0; x < len; x++){ 
+            for(int x = 0; x < len; x++){  
                if(abs(samples[(x+index)%len]*amp - (ylen-(y+yl2))) < dy){
-                    printf("#");
-                }else{ printf(" "); }
-            }  printf("\n\r");
+                    set_buff_char(cbuffer->buffer, y*len+x, '#');
+                }else{ 
+                    set_buff_char(cbuffer->buffer, y*len+x, ' ');
+                }
+            }
         } trig = false;
-        clearScr();
-        // setCursorPos(0,0);
-        Sleep(2); //send to buffer in print thread
+        // setConsolePos(0,0);
+        writeConsoleBuffer(cbuffer);
+        Sleep(20); //send to buffer in print thread
     } 
 };
 

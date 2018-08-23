@@ -10,15 +10,15 @@ IF not [%1]==[] (GOTO args)
 
 mkdir %builddir%
 
-SET libdirs=/LIBPATH:D:\Libraries\portaudio\build\msvc
+SET libdirs=/LIBPATH:D:\libraries\portaudio\build\msvc
 SET libs=portaudio_x86.lib 
 rem SET libs=portaudio_static.lib 
-SET includes=/ID:\Libraries\portaudio\include 
+SET includes=/ID:\libraries\portaudio\include 
 
 rem set debug=/Zi /DEBUG
 rem set static=/MT
 
-SET files=main.cpp pa.cpp
+SET files=main.cpp lib\pa.cpp
 
 SET opts=/Fe%target% /Fo%builddir%\ %static% %debug%
 

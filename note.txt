@@ -24,6 +24,19 @@ subpatch
 parallel connect
 primitives
 --------------------------
+gloabal chain-indep/dependece switch for constructors
+sig_chain_depend(true) 
+event-based ctl dispatch
+--------------------------
+ctl param type, msg type field
+onDisconnect(void)..
+midi parser, ctl router
+sig~ primitives, try fm..
+synthgen, procgen macros..
+in member context have constructor, or static builder (factory ) func to init as child in nested contect
+main driver, loops, stereo bus, dac 
+print, gui thread/queue
+--------------------------
 add:
 -msg_alloc(num, type)
 -parameter msg type !
@@ -70,3 +83,5 @@ note maps
 lang: (eventually)
 -add user defs to macro savefile
 -stack based, lamda connection based, var memory
+-work queue
+-external hid runtine, nwjs, ipc or socket comm

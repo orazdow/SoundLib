@@ -52,7 +52,7 @@ void fillNotes(double notes[], int len, int tablesize, double samplerate){
 }
 
 /**** mtof ****/
-static double mtof(int note){
+static inline double mtof(int note){
 	if(note < 0){ note = 0;}
 	else if(note > 127){ note = 127;}
 	return notes[note];
@@ -64,10 +64,9 @@ static inline double lerp(double v0, double v1, double t) {
   return v0 + fracpart * (v1 - v0);
 } 
 
-static double crossfade(double a, double b, double ratio){
+static inline double crossfade(double a, double b, double ratio){
     return a*ratio + b*(1.0-ratio);
 }
-
 
 void init_keymap(){
     keymap_s[0] = 'A';

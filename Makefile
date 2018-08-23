@@ -9,8 +9,8 @@ SRC += $(wildcard $(SRCDIR_2)/*.cpp)
 # comment out to use basedir
 builddir = build/
 
-INCLUDE = -ID:/Libraries/portaudio/include
-LIBS = -LD:/Libraries/portaudio/build 
+INCLUDE = -ID:/libraries/portaudio/include
+LIBS = -LD:/libraries/portaudio/build 
 LIBS += -lportaudio
 
 CXX := g++

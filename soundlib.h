@@ -20,8 +20,23 @@
 need: cycle detection
 ************/
 
+/*************
+[1 s s s n n n n ][0 x x x x x x x ][0 y y y y y y y]
+msb:1=status 0=data, sss=masg type, nnnn=channel 
+
+Message         Status      Data 1          Data 2
+Note off        8n          Note number     Velocity
+Note on         9n          Note number     Velocity
+poly aftertouch An          Note number     Pressure
+Control change  Bn          Control number  Data
+Program change  Cn          Program number  -
+Ch aftertouch   Dn          Pressure        -
+Pitch wheel     En          LSbyte          MSbyte 
+
+**************/
+
 /**** Msg struct ****/
-struct Note{
+struct Note{ // is_msg......
  unsigned short note;
  uint8_t vel;
  bool on;
@@ -133,8 +148,9 @@ public:
     float  output;
     virtual float out(){ return 0;}
     virtual float out(double in){ return 0;}
-    virtual void connect(Sig* sig){ sig->input = &output; }
+    virtual void connect(Sig* sig){ sig->input = &output;  onConnect(sig); }
     virtual void disconnect(Sig* sig){ sig->input = NULL; }
+    virtual void onConnect(Sig* sig){}
 };
 
 
