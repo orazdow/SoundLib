@@ -1,0 +1,7 @@
+winbuild
+build
+*.exe
+*.o
+.vs
+*.pdb
+*.ilk
