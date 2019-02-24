@@ -8,7 +8,7 @@
 void sig_connect(Sig* a, Sig* b, uint inlet = 0);
 void sig_disconnect(Sig* a, Sig* b, uint inlet = 0);
 
-class Sig{ // Sig public : SigBase
+class Sig{ 
 public:
 
     uint id;
@@ -76,14 +76,12 @@ public:
         inlets = n;
     }
 
-  // void init_summing(){   
-  // }
+  // void init_summing(){}
 
     ~Sig(){ delete[] inputs; delete child_map; delete input_bus; }
 
 };
 
-// move inside class..
 void sig_connect(Sig* a, Sig* b, uint inlet){
     // add inlet warning
 
@@ -92,7 +90,6 @@ void sig_connect(Sig* a, Sig* b, uint inlet){
     if(!b->parent && inlet == 0){ // < condition not needed for sorted queue (connect everything) <remove after sortqueue implemented>
         a->child_map->add(b, b->id);
         b->parents++;
-     //   b->parent = a; // < not needed for sorted queue
     }
 
     b->input_bus->add(&a->output, a->id, inlet);
@@ -103,11 +100,8 @@ void sig_connect(Sig* a, Sig* b, uint inlet){
 
 void sig_disconnect(Sig* a, Sig* b, uint inlet){
 
-    // if(inlet == 0 && b->parent && b->parent->id == a->id){
-        a->child_map->remove(b->id);
-        dec_limit(b->parents, 0);
-   //     b->parent = NULL;
-    // }
+    a->child_map->remove(b->id);
+    dec_limit(b->parents, 0);
 
     if(b->parents == 0 && !a->master){ Glob_Sig->connect(b); }    
 
