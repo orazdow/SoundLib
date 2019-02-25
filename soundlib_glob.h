@@ -20,8 +20,9 @@ class Sig;
 static uint g_id = 0;
 static float _null = 0;
 
-static bool GLOB_SET = 0;
-static bool GLOB_SIG_SET = 0;
+static bool GLOB_NODE_INIT = 0;
+// static bool GLOB_SET = 0;
+// static bool GLOB_SIG_SET = 0;
 static bool SWITCH_CHAIN_INDEPENDENT = 0;
 
 static Ctl* glob_ctl;

@@ -12,6 +12,10 @@ bool : true -> master, false independent. float val ->child (0?)
 
 add out, dsp, call ect
 
+--------------------------------done
+
+add inependent new overload..
+
 implement inlet super(param)..
 
 repeat for Ctl obj ...
@@ -25,7 +29,3 @@ implement derived classes in Ctl and Sig
 test..
 
 add return self on connect
-
-----------------------------
-Complete and test constructors (master, val, child, independent)[]
--use #define switch, later overload op

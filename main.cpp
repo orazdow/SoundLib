@@ -142,20 +142,44 @@ void printbus(Sig* n, uint inlet){
     printf("\n");
 }
 
+
 void printchilds(Sig* n){
     for(int i = 0; i < n->child_map->addptr; i++){
         printf("%u, ", n->child_map->nodes[i]->id);
     } printf("\n");
+
+    // for( auto p : n->childs){
+    //      printf("%u, ", p.second->id);
+    // }   printf("\n");
 }
 
-void dfs(Sig* n, int lev){
-	printf("\nLev: %u, ID: %u, childs(num:id): ", lev, n->id);
-	lev++;
-	for(int i = 0; i < n->child_map->addptr; i++){
-		if(i > 0){ printf(", "); }
-		printf("%u:%u", i, n->child_map->nodes[i]->id);
-	}
-	for(int i = 0; i < n->child_map->addptr; i++){
-		dfs(n->child_map->nodes[i], lev);
-	}
-}
+// void dfs(Sig* n, int lev){
+// 	printf("\nLev: %u, ID: %u, childs(num:id): ", lev, n->id);
+// 	lev++;
+// 	for(int i = 0; i < n->child_map->addptr; i++){
+// 		if(i > 0){ printf(", "); }
+// 		printf("%u:%u", i, n->child_map->nodes[i]->id);
+// 	}
+// 	for(int i = 0; i < n->child_map->addptr; i++){
+// 		dfs(n->child_map->nodes[i], lev);
+// 	}
+// }
+
+// void printchilds(Sig* n){
+//     for(int i = 0; i < n->child_map->addptr; i++){
+//         printf("%u, ", n->child_map->nodes[i]->id);
+//     } printf("\n");
+// }
+
+// void dfs(Sig* n, int lev){
+//     printf("\nLev: %u, ID: %u, childs(num:id): ", lev, n->id);
+//     lev++;
+//     for(int i = 0; i < n->child_map->addptr; i++){
+//         if(i > 0){ printf(", "); }
+//         printf("%u:%u", i, n->child_map->nodes[i]->id);
+//     }
+//     for(int i = 0; i < n->child_map->addptr; i++){
+//         dfs(n->child_map->nodes[i], lev);
+//     }
+// }
+
