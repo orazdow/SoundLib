@@ -15,9 +15,10 @@ public:
     bool master = 0;
     uint inlets = 8; // set in derived, def 1
 
-    float* input = &_null;
+    float* input;
+    float** inputs;
+    float val = 0;
     float output = 0;
-    float** inputs; 
     Bus* input_bus;
     //std::map <int, Sig*> childs;
     Node_map<Sig>* child_map;
@@ -29,28 +30,33 @@ public:
             GLOB_NODE_INIT = 0;
         }
         this->id = g_id++;  
-        
-        *input = (float)val; 
-        output = (float)val;
-        init(num_inlets, num_summing, map_limit);
+        init((float)val, num_inlets, num_summing, map_limit);
 
         if(!master && !SWITCH_CHAIN_INDEPENDENT){
            glob_sig->connect(this); 
         }
     }
+
     Sig() : Sig(0){ } 
   //  Sig(uint inlets, uint summing){} //Sig(uint inlets, uint summing = 1){}
 
     ~Sig(){ delete[] inputs; delete input_bus; }
 
-    void init(uint n_inlets, uint n_summing, uint n_map){
+    void init(float f, uint n_inlets, uint n_summing, uint n_map){
         inputs = new float*[n_inlets];
         input_bus  = new Bus(n_inlets, n_summing);
-        child_map = new Node_map<Sig>(n_map); // not needed if usinf std:map
+        child_map = new Node_map<Sig>(n_map); // not needed if using std:map
         for(int i = 0; i < n_inlets; i++)
             inputs[i] = &input_bus->outputs[i]; 
 
-        input = inputs[0];   	
+        input = inputs[0];   
+        val = f;
+        output = val;   
+
+        input_bus->update(&val, 0);
+        // input_bus->inputs[0] = &val;
+        // input_bus->outputs[0] = *(input_bus->inputs[0]);
+
     }
 
     virtual void dsp(){ output = *input; }
@@ -73,6 +79,7 @@ public:
   // void init_summing(){}
 
     void call(){ 
+        /* if auto_summin sum inputs */
         dsp();
         callChildren();     
     }
@@ -101,8 +108,6 @@ void sig_connect(Sig* a, Sig* b, uint inlet){
 
     b->input_bus->add(&a->output, a->id, inlet);
 
-    if(!auto_summing)
-        b->inputs[inlet] = b->input_bus->inputs[inlet*num_summing];
 }
 
 void sig_disconnect(Sig* a, Sig* b, uint inlet){
@@ -115,8 +120,6 @@ void sig_disconnect(Sig* a, Sig* b, uint inlet){
 
     b->input_bus->remove(a->id, inlet); 
 
-    if(!auto_summing)
-        b->inputs[inlet] = b->input_bus->inputs[inlet*num_summing];
 }
 
 
@@ -129,7 +132,7 @@ void sl_init(){
     init_globals();
 }
 
-void call_node(){
+void call_sig(){
     glob_sig->callChildren();
 }
 

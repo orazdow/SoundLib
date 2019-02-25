@@ -14,9 +14,13 @@ add out, dsp, call ect
 
 --------------------------------done
 
+add #if AUTO_SUMMING, rename defines, globals to caps
+
+implement output node
+
 add inependent new overload..
 
-implement inlet super(param)..
+implement inlet init ...super(param)...
 
 repeat for Ctl obj ...
 

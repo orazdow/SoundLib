@@ -1,18 +1,17 @@
 TARGET := out.exe
 
-# SRCDIR_2 = lib
+SRCDIR_2 = lib
 
 # SRC := $(wildcard *.cpp)
-# SRC += $(wildcard $(SRCDIR_2)/*.cpp)
-
-SRC = main.cpp
+SRC := main.cpp
+SRC += $(wildcard $(SRCDIR_2)/*.cpp)
 
 # comment out to use basedir
 # builddir = build/
 
-# INCLUDE = -ID:/libraries/portaudio/include
-# LIBS = -LD://ibraries/portaudio/build 
-# LIBS += -lportaudio
+INCLUDE = -ID:/libraries/portaudio/include
+LIBS = -LD://libraries/portaudio/build 
+LIBS += -lportaudio
 
 CXX := g++
 # FLAGS := -Wall

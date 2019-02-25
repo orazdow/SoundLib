@@ -103,6 +103,14 @@ void sum(float** inputs, float* output, uint len){
 	*output = out;  
 }
 
+void mult(float** inputs, float* output, uint len){ 
+	float out = 0; 
+	for(int i = 0; i < len; i++){
+		out *= *inputs[i];
+	} 
+	*output = out;  
+}
+
 struct Bus{
 
 	float** inputs;
@@ -113,14 +121,27 @@ struct Bus{
 
 	void add(float* f, uint key, uint inlet = 0){
 		float_map.add(f, key, inlet);
+		if(!auto_summing)
+			outputs[inlet] =  *inputs[inlet*num_summing];
 	}
 
 	void remove(uint key, uint inlet = 0){
 		float_map.remove(key, inlet);
+		if(!auto_summing)
+			outputs[inlet] =  *inputs[inlet*num_summing];
+	}
+
+	void update(float* f, uint inlet, uint sum_offset = 0){
+		inputs[inlet*n_summing+sum_offset] = f;
+		outputs[inlet] = *inputs[inlet*n_summing+sum_offset];
 	}
 
 	void sum(uint inlet = 0){
 		::sum(inputs+(inlet*n_summing), &outputs[inlet], float_map.addptr[inlet]);
+	}
+
+	void mult(uint inlet = 0){
+		::mult(inputs+(inlet*n_summing), &outputs[inlet], float_map.addptr[inlet]);
 	}
 
 	void sumInputs(){
@@ -128,7 +149,7 @@ struct Bus{
 			::sum(inputs+(i*n_summing), &outputs[i], float_map.addptr[i]);
 	}
 
-	void init(uint _n_inlets, uint _n_summing){
+	void init(const uint _n_inlets, const uint _n_summing){
 		n_inlets = _n_inlets;
 		n_summing = _n_summing;
 		inputs = new float*[n_inlets*n_summing];
@@ -140,7 +161,7 @@ struct Bus{
 
 	Bus(uint _n_inlets, uint _n_summing){ init(_n_inlets, _n_summing); }
 	Bus(){ init(num_inlets, num_summing); }
-	~Bus(){ delete[] inputs; delete[] outputs;}
+    ~Bus(){ delete[] inputs; delete[] outputs;}
 
 }; 
 
