@@ -27,12 +27,7 @@ public:
     }
 
     void dsp(){ 
-        if(!auto_summing)
-          sumInputs(); 
-        // input_bus->sum(0);
          output =  *input;
-        //output =  *inputs[0];
-
     }
 
 };
@@ -49,9 +44,6 @@ public:
     }
 
     void dsp(){
-      if(!auto_summing)
-          sumInputs(); 
-            //input_bus->mult(0);
         output =  *input;
     }
 

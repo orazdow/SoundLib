@@ -22,14 +22,7 @@ void paFunc(const float* in, float* out, unsigned long frames, void* data){
 int main(){
 
     sl_init();
-
-    Osc o(200);
-
-    // Pa a(paFunc, &o);
-    // a.start(Pa::waitForKey);
-
-    // test();
-    // printf("ok\n");
+    
 
     Osc mod(434); 
     Osc car(300);
@@ -43,7 +36,6 @@ int main(){
     m.connect(&s);
     nn.connect(&s);
     s.connect(&car);
-   // Pa a(paFunc, &car);
 
 
     // Osc lfo(1);
@@ -54,29 +46,10 @@ int main(){
     // Sum s;
     // Sig freq(200);
     // m.connect(&s);
-    // freq.connect(&s); //<<both calling s.call()...
+    // freq.connect(&s); 
     // Osc car;
     // s.connect(&car);
 
-    // printbus(&m);
-
-  //   Sig a(1); Sig b(2); Sig c(3);
-
-  //   Sum s;
-
-  //   a.connect(&s);
-  //   b.connect(&s);
-  //   c.connect(&s);
-
-  //  // for(int i = 0; i < 20; ++i){
-  //       call_sig();
-        // printbus(&s);
-  //     //  printf("%f\n", m.output);
-        // printf("%f\n", s.output);
-  // //  }
-    
-
-    // Osc car(200);
 
     // for(int i = 0; i < 20; ++i){
     //         call_sig();
@@ -86,31 +59,6 @@ int main(){
     Pa a(paFunc, &car);
     a.start(Pa::waitForKey);
 
-    // for(int i = 0; i < 200; ++i){
-    //     //for(int j = 0; j < 200; ++j){
-    //          call_sig();
-    //   //  }
-           
-    //         printf("%f\n", *car.input);
-    // }
-
-    // lfo.connect(&mult);
-    // range.connect(&mult);
-    // mult.connect(&s);
-   // s.connect(&car);
-
-    // Sig t1(5); Sig t2(7);
-    // t1.connect(&s);
-    // t2.connect(&s);
-    // call_sig();
-    // printf("%f\n", s.output);
-
-    // mod.connect(&s);
-    // car.connect(&s);
-    // Pa a(paFunc, &s);
-
-    // Pa a(paFunc, &car);
-    // a.start(Pa::waitForKey);
 
     return 0;
 }

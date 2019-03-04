@@ -39,10 +39,10 @@ public:
     }
 
     Sig() : Sig(0){ } 
-  //  Sig(uint inlets, uint summing){} //Sig(uint inlets, uint summing = 1){}
+    // Sig(bool summing, uint inlets): Sig(0){ init(summing, inlets); } 
     ~Sig(){ delete[] inputs; delete input_bus; }
 
-    virtual void dsp(){ output = *input; } // can be just return out;
+    virtual void dsp(){ output = *input; } 
     virtual float out(){ return output = *input; }
     virtual float out(double in){ return output = (float)in; }
 
@@ -79,10 +79,8 @@ protected:
     }
 
     void call(){ 
-        #if auto_summing
-            if(summing)
-                sumInputs(); 
-        #endif
+        if(summing)
+            sumInputs(); 
         dsp();
         callChildren();     
     }
@@ -111,8 +109,8 @@ void sig_connect(Sig* a, Sig* b, uint inlet){
     }
 
     if(!a->master){
-        b->input_bus->add(&a->output, a->id, inlet, b->summing);
-       if(!b->summing){
+        b->input_bus->add(&a->output, a->id, inlet);
+       if(!b->summing){ // could move into bus w parent ptr..
            b->inputs[inlet] = b->input_bus->inputs[inlet*num_summing];
            b->input = b->inputs[0]; 
        }
@@ -131,7 +129,7 @@ void sig_disconnect(Sig* a, Sig* b, uint inlet){
 
     if(!a->master){
         b->input_bus->remove(a->id, inlet); 
-        if(!b->summing) // could move into bus w parent ptr..
+        if(!b->summing) 
            b->inputs[inlet] = b->input_bus->inputs[inlet*num_summing];
            b->input = b->inputs[0]; 
     }
