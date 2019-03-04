@@ -15,17 +15,20 @@ struct Node_map{ // template<> Map
 	uint addptr = 0;
 	uint len = 0;
 
-	void add(T* n, uint key){
+	bool add(T* n, uint key){
 		if(!lookup[key]){
 			if(addptr == map_limit) addptr--;
 			nodes[addptr] = n; 
 			keys[addptr] = key;
 			lookup[key] = addptr+1;
 			inc_limit(addptr, len); 
+			return true;
+		}else{
+			return false;
 		}
     }
 
-	void remove(uint key){
+	bool remove(uint key){
 		if(lookup[key]){
 			uint delindex = lookup[key]-1;    
 			if(addptr > 0) addptr--;
@@ -35,6 +38,9 @@ struct Node_map{ // template<> Map
 				lookup[keys[i]] = i+1;         
 			}
 			lookup.erase(key);
+			return true;
+		}else{
+			return false;
 		}
 	}
 
@@ -57,6 +63,10 @@ struct Float_map{
 	uint n_inputs;
 	uint n_summing;
 	std::unordered_map<uint,uint[num_inlets]> lookup;
+
+	// void update(float* f, uint inlet, uint offset = 0){
+	// 	floats[inlet*n_summing+offset] = f;
+	// }
 
 	void add(float* f, uint key, uint inlet){ 
 		if(lookup[key][inlet] || addptr[inlet]>n_summing-1) return; 
@@ -81,7 +91,6 @@ struct Float_map{
 		if(endindex < n_inputs*n_summing) floats[endindex] = &_null;     
 		lookup[key][inlet] = 0;
 	}
-
 	void init(float** inputs, uint _n_inlets, uint _n_summing){
 		floats = inputs;
 		n_inputs = _n_inlets;
@@ -96,19 +105,23 @@ struct Float_map{
 
 
 void sum(float** inputs, float* output, uint len){ 
-	float out = 0; 
-	for(int i = 0; i < len; i++){
-		out += *inputs[i];
-	} 
-	*output = out;  
+	if(len){
+		float out = 0; 
+		for(int i = 0; i < len; i++){
+			out += *inputs[i];
+		} 
+		*output = out;  //<!
+	}
 }
 
 void mult(float** inputs, float* output, uint len){ 
-	float out = 0; 
-	for(int i = 0; i < len; i++){
-		out *= *inputs[i];
-	} 
-	*output = out;  
+	if(len){
+		float out = 1; 
+		for(int i = 0; i < len; i++){
+			out *= *inputs[i];
+		} 
+		*output = out;  //<!
+	}
 }
 
 struct Bus{
@@ -118,17 +131,21 @@ struct Bus{
 	uint n_inlets;
 	uint n_summing;
 	Float_map float_map;
+	//Sig* owner
 
-	void add(float* f, uint key, uint inlet = 0){
+	void add(float* f, uint key, uint inlet = 0, bool summing = 1){
+		//if key != 0 -master-
 		float_map.add(f, key, inlet);
-		if(!auto_summing)
-			outputs[inlet] =  *inputs[inlet*num_summing];
+		if(!summing){
+			//outputs[inlet] =  *inputs[inlet*num_summing];
+		}
 	}
 
-	void remove(uint key, uint inlet = 0){
+	void remove(uint key, uint inlet = 0, bool summing = 1){
 		float_map.remove(key, inlet);
-		if(!auto_summing)
-			outputs[inlet] =  *inputs[inlet*num_summing];
+		if(!summing){
+			//outputs[inlet] =  *inputs[inlet*num_summing];
+		}
 	}
 
 	void update(float* f, uint inlet, uint sum_offset = 0){
@@ -137,16 +154,19 @@ struct Bus{
 	}
 
 	void sum(uint inlet = 0){
-		::sum(inputs+(inlet*n_summing), &outputs[inlet], float_map.addptr[inlet]);
+
+		//if(float_map.addptr[inlet])
+			::sum(inputs+(inlet*n_summing), &outputs[inlet], float_map.addptr[inlet]);
 	}
 
 	void mult(uint inlet = 0){
-		::mult(inputs+(inlet*n_summing), &outputs[inlet], float_map.addptr[inlet]);
+		//if(float_map.addptr[inlet])
+			::mult(inputs+(inlet*n_summing), &outputs[inlet], float_map.addptr[inlet]);
 	}
 
 	void sumInputs(){
 		for(int i = 0; i < n_inlets; i++)
-			::sum(inputs+(i*n_summing), &outputs[i], float_map.addptr[i]);
+				::sum(inputs+(i*n_summing), &outputs[i], float_map.addptr[i]);
 	}
 
 	void init(const uint _n_inlets, const uint _n_summing){

@@ -18,20 +18,19 @@ public:
     }
 };
 
-/* need: setInlets ..super */
-
 
 class Sum : public Sig{
    
 public:
     Sum(){
-        setInlets(1);
+        init(true);
     }
 
     void dsp(){ 
-        sumInputs(); /* <<#if AUTO_SUMMING */
+        if(!auto_summing)
+          sumInputs(); 
         // input_bus->sum(0);
-        output =  *input;
+         output =  *input;
         //output =  *inputs[0];
 
     }
@@ -42,11 +41,17 @@ class Mult : public Sig{
    
 public:
     Mult(){
-        setInlets(1);
+       init(true);
+    }
+
+    void sumInputs(){ 
+       input_bus->mult(0);
     }
 
     void dsp(){
-		input_bus->mult(0);
+      if(!auto_summing)
+          sumInputs(); 
+            //input_bus->mult(0);
         output =  *input;
     }
 

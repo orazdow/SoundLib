@@ -6,7 +6,7 @@
 
 typedef unsigned int uint;
 
-#define auto_summing 1
+#define auto_summing 1 
 #define num_inlets 8
 #define num_summing 64
 
@@ -38,7 +38,7 @@ static const double tau = 2*pi;
 
 // namespace constants
 namespace sl{
-	static const int sin = 0, cos = 1, ramp = 2, saw = 2, tri = 3, square = 4; 
+    static const int sin = 0, cos = 1, ramp = 2, saw = 2, tri = 3, square = 4; 
 }
 
 static float sinetable[table_size+1];
@@ -67,9 +67,9 @@ void fillNotes(double notes[], int len, int tablesize, double samplerate){
 
 /**** mtof ****/
 static inline double mtof(int note){
-	if(note < 0){ note = 0;}
-	else if(note > 127){ note = 127;}
-	return notes[note];
+    if(note < 0){ note = 0;}
+    else if(note > 127){ note = 127;}
+    return notes[note];
 }
 
 /**** lerp ****/
@@ -107,8 +107,8 @@ void init_keymap(){
 }
 
 void init_globals(){
-	init_keymap();
-	initSineTable(sinetable, table_size, true);
+    init_keymap();
+    initSineTable(sinetable, table_size, true);
     fillNotes(notes, 128, table_size, sampling_rate);
    // initConsole();
 };
