@@ -24,10 +24,11 @@ int main(){
     sl_init();
     
 
+/*  // fm test with Bus
     Osc mod(434); 
     Osc car(300);
-    Sum s;
-    Mult m; //<<<<<(val)
+    Bus s;
+    Bus m(sl::mult); 
 
     Sig n(2000);
     mod.connect(&m);
@@ -36,20 +37,71 @@ int main(){
     m.connect(&s);
     nn.connect(&s);
     s.connect(&car);
+*/
+ 
+  // fm test Sum, Mult
+    Osc mod(434); 
+    Osc car;
+    Mult m(2000); 
+    mod.connect(&m);
+    int fundamental = 200;
+    Sum s(fundamental);
+    m.connect(&s);
+    s.connect(&car);
+    // adding lfo
+    Osc lfo(1);
+    Sum s2(1); // need expr
+    lfo.connect(&s2); // need expr
+    Mult amp(2000);
+    s2.connect(&amp);
+    // replace default at right inlet
+    amp.connect(&m, 1); 
 
+/* // Sum as Bus, mult using inlet
+   // put op functionality sig...
+    Osc mod(434); 
+    Osc car(300);
+    Sum s;
+    Mult m;
 
-    // Osc lfo(1);
-    // Mult m;
-    // Sig gain(20);
-    // lfo.connect(&m);
-    // gain.connect(&m);
-    // Sum s;
-    // Sig freq(200);
-    // m.connect(&s);
-    // freq.connect(&s); 
-    // Osc car;
-    // s.connect(&car);
+    Sig n(2000);
+    mod.connect(&m);
+    n.connect(&m, 1);
+    Sig nn(200);
+    m.connect(&s);
+    nn.connect(&s);
+    s.connect(&car);
+*/
 
+/*  // Sum val test
+    Sum s(50);
+    Sig a(12);
+
+    a.connect(&s);
+    call_sig();
+    printf("%f\n", s.output);
+    Sig b(60);
+    b.connect(&s, 1);
+    call_sig();
+    printf("%f\n", s.output);
+*/
+
+/*  // Mult val test
+    Mult m(8);
+    Sig a(3);
+
+    a.connect(&m);
+    call_sig();
+    printf("%f\n", m.output);
+    Sig b(12);
+    b.connect(&m, 1);
+    call_sig();
+    printf("%f\n", m.output);
+*/
+    // for(int i = 0; i < 20; ++i){
+    //         call_sig();
+    //         printf("%f\n", *car.input);
+    // }
 
     // for(int i = 0; i < 20; ++i){
     //         call_sig();
@@ -64,8 +116,6 @@ int main(){
 }
 
 void printbus(Sig* n, uint inlet){ 
-    // if(auto_summing) //<<should go into call()
-    //     n->sumInputs();
     printf("%f|", *n->inputs[inlet]);
     uint end = n->input_bus->float_map.addptr[inlet];
     uint n_summing = n->input_bus->n_summing;

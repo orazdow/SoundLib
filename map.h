@@ -121,23 +121,23 @@ inline void mult(float** inputs, float* output, uint len){
 	}
 }
 
-struct Bus{
+struct SigBus{
 
 	float** inputs;
 	float* outputs;
 	uint n_inlets;
 	uint n_summing;
 	Float_map float_map;
-	//Sig* owner
 
-	void add(float* f, uint key, uint inlet = 0, bool summing = 1){
+	void add(float* f, uint key, uint inlet = 0){
 		float_map.add(f, key, inlet);
 	}
 
-	void remove(uint key, uint inlet = 0, bool summing = 1){
+	void remove(uint key, uint inlet = 0){
 		float_map.remove(key, inlet);
 	}
 
+	// update float ptr without hashing
 	void update(float* f, uint inlet, uint sum_offset = 0){
 		inputs[inlet*n_summing+sum_offset] = f;
 		outputs[inlet] = *inputs[inlet*n_summing+sum_offset];
@@ -166,9 +166,9 @@ struct Bus{
 		float_map.init(inputs, n_inlets, n_summing);
 	}
 
-	Bus(uint _n_inlets, uint _n_summing){ init(_n_inlets, _n_summing); }
-	Bus(){ init(num_inlets, num_summing); }
-    ~Bus(){ delete[] inputs; delete[] outputs;}
+	SigBus(uint _n_inlets, uint _n_summing){ init(_n_inlets, _n_summing); }
+	SigBus(){ init(num_inlets, num_summing); }
+    ~SigBus(){ delete[] inputs; delete[] outputs;}
 
 }; 
 

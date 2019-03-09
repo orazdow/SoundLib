@@ -38,7 +38,10 @@ static const double tau = 2*pi;
 
 // namespace constants
 namespace sl{
-    static const int sin = 0, cos = 1, ramp = 2, saw = 2, tri = 3, square = 4; 
+    // function types
+    static const uint sin = 0, cos = 1, ramp = 2, saw = 2, tri = 3, square = 4; 
+    // bus op types
+    static const uint sum = 0, mult = 1;
 }
 
 static float sinetable[table_size+1];

@@ -19,32 +19,74 @@ public:
 };
 
 
-class Sum : public Sig{
-   
+/* single inlet sum/mult node*/
+class Bus : public Sig{
+
 public:
-    Sum(){
-        init(true);
+
+    uint op = sl::sum;
+
+    Bus() : op(sl::sum){
+        init(false); // <if sumInputs is not virtual
     }
 
+    Bus(uint _op) : op(_op){
+        init(false);
+    }
+
+    void dsp(){
+        // ..in dsp if sumInputs is not virtual
+        switch(op){
+            case sl::sum : input_bus->sum(0); 
+            break;
+            case sl::mult : input_bus->mult(0);
+        }
+        output =  *input;
+    }
+
+    virtual void bypass_summing(uint inlet = 0){/* override */}
+
+};
+
+/* two inlet defaultable sum (as in pd) */
+class Sum : public Sig{
+
+    float val2 = 0;
+   
+public:
+    Sum(double f){
+        init(true, 2);
+        val2 = f;
+        input_bus->update(&val2, 1);
+    }
+    Sum() : Sum(0){}
+
     void dsp(){ 
-         output =  *input;
+        output = 0;
+        output += *inputs[0];
+        output += *inputs[1];
     }
 
 };
 
+/* two inlet defaultable mult (as in pd) */
 class Mult : public Sig{
    
+   float val2 = 1;
+
 public:
-    Mult(){
-       init(true);
+
+    Mult(double f){
+        init(true, 2);
+        val2 = f;
+        input_bus->update(&val2, 1);        
     }
 
-    void sumInputs(){ 
-       input_bus->mult(0);
-    }
+    Mult() : Mult(1){}
 
     void dsp(){
-        output =  *input;
+        output = *input;
+        output *= *inputs[1];
     }
 
 };

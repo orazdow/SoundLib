@@ -18,9 +18,9 @@ public:
 
     float* input;
     float** inputs;
+    SigBus* input_bus;
     float val = 0;
     float output = 0;
-    Bus* input_bus;
     //std::map <int, Sig*> childs;
     Node_map<Sig>* child_map;
     friend void call_sig();
@@ -39,7 +39,7 @@ public:
     }
 
     Sig() : Sig(0){ } 
-    // Sig(bool summing, uint inlets): Sig(0){ init(summing, inlets); } 
+    Sig(bool summing, uint inlets): Sig(0){ init(summing, inlets); } 
     ~Sig(){ delete[] inputs; delete input_bus; }
 
     virtual void dsp(){ output = *input; } 
@@ -50,19 +50,22 @@ public:
     void connect(Sig* child, uint inlet = 0){ sig_connect(this, child, inlet);}
     void disconnect(Sig* child, uint inlet = 0){ sig_disconnect(this, child, inlet);}
 
+    virtual void bypass_summing(uint inlet = 0){
+        inputs[inlet] = input_bus->inputs[inlet*num_summing];
+        input = inputs[0];        
+    }
 
 private:
 
     void _init(float f, uint n_inlets, uint n_summing, uint n_map){
         inputs = new float*[n_inlets];
-        input_bus  = new Bus(n_inlets, n_summing);
+        input_bus  = new SigBus(n_inlets, n_summing);
         child_map = new Node_map<Sig>(n_map); // not needed if using std:map
         for(int i = 0; i < n_inlets; i++)
                 inputs[i] = &input_bus->outputs[i];
         
-        input = inputs[0];   
+        input = inputs[0]; 
         val = f;
-        output = val;  
         input_bus->update(&val, 0); 
     }
 
@@ -73,7 +76,8 @@ protected:
         inlets = _inlets;
     }
 
-    virtual void sumInputs(){ 
+    // not making overridable (to save cycles..?)
+    inline void sumInputs(){ 
         for(int i = 0; i < inlets; i++) 
             input_bus->sum(i);
     }
@@ -110,10 +114,7 @@ void sig_connect(Sig* a, Sig* b, uint inlet){
 
     if(!a->master){
         b->input_bus->add(&a->output, a->id, inlet);
-       if(!b->summing){ // could move into bus w parent ptr..
-           b->inputs[inlet] = b->input_bus->inputs[inlet*num_summing];
-           b->input = b->inputs[0]; 
-       }
+        if(!b->summing) b->bypass_summing(inlet);
     }
 
 }
@@ -129,9 +130,7 @@ void sig_disconnect(Sig* a, Sig* b, uint inlet){
 
     if(!a->master){
         b->input_bus->remove(a->id, inlet); 
-        if(!b->summing) 
-           b->inputs[inlet] = b->input_bus->inputs[inlet*num_summing];
-           b->input = b->inputs[0]; 
+        if(!b->summing) b->bypass_summing(inlet);
     }
 
 }
@@ -139,10 +138,9 @@ void sig_disconnect(Sig* a, Sig* b, uint inlet){
 
 /********  init  *************/
 void sl_init(){
-    printf("initing..\n");
    // glob_ctl = new Glob_Ctl();
     GLOB_NODE_INIT = 1;
-    glob_sig = new Sig(9);
+    glob_sig = new Sig();
     init_globals();
 }
 
