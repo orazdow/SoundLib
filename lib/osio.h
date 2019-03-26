@@ -29,6 +29,8 @@ void setEndCb(void(*cb)(void)){
 #if WIN32
 
 	#include "windows.h"
+	#pragma comment (lib, "user32.lib")
+
 
 	static POINT point;
 	static HANDLE CONSOLE, CONSOLE_IN;

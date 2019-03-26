@@ -1,17 +1,18 @@
 
 #include "soundlib.h"
 #include "soundlib_sig.h"
+#include "soundlib_ctl.h"
 #include "lib/pa.h"
 #include "stdio.h"
 
 void printbus(Sig* n, uint inlet);
 void printchilds(Sig* n);
+void disp(Msg* m);
 void dfs(Sig* n, int lev);
 
 void paFunc(const float* in, float* out, unsigned long frames, void* data){    
 
-     Osc* o = (Osc*)data;
-     //Sum* o = (Sum*)data;
+     Sig* o = (Sig*)data;
     
     for(unsigned long i = 0; i < frames; i++){ 
         call_sig();
@@ -23,8 +24,8 @@ int main(){
 
     sl_init();
     
-
-/*  // fm test with Bus
+/*
+  // fm test with Bus
     Osc mod(434); 
     Osc car(300);
     Bus s;
@@ -39,17 +40,18 @@ int main(){
     s.connect(&car);
 */
  
+
   // fm test Sum, Mult
     Osc mod(434); 
     Osc car;
     Mult m(2000); 
     mod.connect(&m);
-    int fundamental = 200;
+    int fundamental = 100;
     Sum s(fundamental);
     m.connect(&s);
     s.connect(&car);
     // adding lfo
-    Osc lfo(1);
+    FnGen lfo(sl::saw, 1);
     Sum s2(1); // need expr
     lfo.connect(&s2); // need expr
     Mult amp(2000);
@@ -57,7 +59,21 @@ int main(){
     // replace default at right inlet
     amp.connect(&m, 1); 
 
-/* // Sum as Bus, mult using inlet
+    PolyKey p(8);
+
+    Lp filt(300);
+    // add filter and cutoff lfo
+    FnGen filtlfo(sl::sin, 6);
+    Sum s3(1.5); // need expressions....
+    filtlfo.connect(&s3); //
+    Mult mm(1000); //
+    s3.connect(&mm); // 
+    mm.connect(&filt, 1);
+
+    car.connect(&filt);
+
+/*
+ // Sum as Bus, mult using inlet, auto_summing 1
    // put op functionality sig...
     Osc mod(434); 
     Osc car(300);
@@ -108,11 +124,23 @@ int main(){
     //         printf("%f\n", *car.input);
     // }
 
-    Pa a(paFunc, &car);
-    a.start(Pa::waitForKey);
+    Pa a(paFunc, &filt);
+    a.start();
 
+    while(1){
+        call_ctl(); 
+        disp(&p.m);
+        Sleep(20);
+    }
 
+    a.terminate();
     return 0;
+}
+
+void disp(Msg* m){ 
+    for(unsigned int i = 0; i < m->num; i++){
+         printf("%u:%u ", m->value[i]._n.note, m->value[i]._n.on);
+    }printf("\r");
 }
 
 void printbus(Sig* n, uint inlet){ 

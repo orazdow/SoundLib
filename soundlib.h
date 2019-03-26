@@ -7,6 +7,8 @@
 void sig_connect(Sig* a, Sig* b, uint inlet = 0);
 void sig_disconnect(Sig* a, Sig* b, uint inlet = 0);
 
+/************ Sig ************/
+
 class Sig{ 
 public:
 
@@ -36,11 +38,12 @@ public:
         if(!master && !SWITCH_CHAIN_INDEPENDENT){
            glob_sig->connect(this); 
         }
+
     }
 
     Sig() : Sig(0){ } 
     Sig(bool summing, uint inlets): Sig(0){ init(summing, inlets); } 
-    ~Sig(){ delete[] inputs; delete input_bus; }
+    virtual ~Sig(){ delete[] inputs; delete input_bus; delete child_map; }
 
     virtual void dsp(){ output = *input; } 
     virtual float out(){ return output = *input; }
@@ -50,9 +53,27 @@ public:
     void connect(Sig* child, uint inlet = 0){ sig_connect(this, child, inlet);}
     void disconnect(Sig* child, uint inlet = 0){ sig_disconnect(this, child, inlet);}
 
+    // init num inputs. summing status
+    void init(uint _inlets = 1, bool _summing = auto_summing){
+        summing = _summing;
+        inlets = _inlets;
+    }
+
+    // set temp val: *val, inlet (index from 0)
+    void initVal(float* val, int inlet){
+        input_bus->update(val, inlet);
+    }
+
+
     virtual void bypass_summing(uint inlet = 0){
         inputs[inlet] = input_bus->inputs[inlet*num_summing];
         input = inputs[0];        
+    }
+
+    // not making virtual (to save ...cycles..)
+    inline void sumInputs(){ 
+        for(int i = 0; i < inlets; i++) 
+            input_bus->sum(i);
     }
 
 private:
@@ -70,17 +91,6 @@ private:
     }
 
 protected:
-
-    void init(bool _summing = 1, uint _inlets = 1){
-        summing = _summing;
-        inlets = _inlets;
-    }
-
-    // not making overridable (to save cycles..?)
-    inline void sumInputs(){ 
-        for(int i = 0; i < inlets; i++) 
-            input_bus->sum(i);
-    }
 
     void call(){ 
         if(summing)
@@ -135,13 +145,154 @@ void sig_disconnect(Sig* a, Sig* b, uint inlet){
 
 }
 
+/************ Ctl ************/
+
+/**** Msg struct ****/
+struct Note{ // is_msg......
+    unsigned short note;
+    uint8_t vel;
+    bool on;
+    short pitch;
+};
+
+union Val{
+    uint32_t _i;
+    float _f; 
+    Note _n;
+};
+
+struct Msg{
+    Val* value;
+    uint num;
+    uint index;
+    uint8_t type;
+};
+
+
+class Ctl{
+
+public:
+
+    uint id;
+    bool master = 0;
+    Msg m = {0,0,0};
+    Ctl* parents;
+    Node_map<Ctl>* child_map;
+    Node_map<Ctl>* parent_map;
+    friend void call_ctl();
+
+    Ctl(bool init_indep = 0){
+        if(GLOB_NODE_INIT){
+            master = 1;
+            GLOB_NODE_INIT = 0;
+        }
+        this->id = g_id++;
+        child_map = new Node_map<Ctl>(map_limit);
+        parent_map = new Node_map<Ctl>(map_limit);
+        if(!master && (!SWITCH_CHAIN_INDEPENDENT || init_indep)){
+           glob_ctl->connect(this); 
+        }
+    }   
+
+    virtual ~Ctl(){ delete[] m.value; delete child_map; delete parent_map; }
+
+    // user override
+    virtual void run(){}
+    virtual void run(Msg _m){}
+    virtual void onConnect(Ctl* child){}
+
+    void connect(Ctl* child){ 
+        child_map->add(child, child->id);
+        child->parent_map->add(this, this->id);
+        if(!master)
+            glob_ctl->disconnect(child);
+        onConnect(child);
+    }
+
+    void disconnect(Ctl* child){ 
+        child_map->remove(child->id);
+        child->parent_map->remove(this->id);
+    } 
+
+protected:
+
+    void call(Msg _m){ 
+        // process msg..
+        if(_m.num){ 
+            run(_m);
+        }else{
+            run(); 
+        }
+        callChildren();
+    }
+
+    // index always added
+    void callChildren(){ 
+        for(int i = 0; i < child_map->addptr; i++){
+            m.index = i;
+            child_map->nodes[i]->call(m);
+        }
+    }
+
+    void msg_alloc(size_t num){ 
+         m.num = num;
+         m.value = new Val[num]();
+    }    
+    // convenience func
+    void copy_msg(Msg _m){
+        for(int i = 0; i < m.num; i++){
+            m.value[i] = _m.value[i];
+        }
+    }    
+};
+
+
+/***** Env base *****/
+class Env : public Sig, public Ctl{
+public: 
+    Env() : Ctl(master_independent){}
+    uint on = 0; 
+    virtual float out(unsigned int trig){ return 0;}
+    virtual void reset(){}
+    void setTrig(uint trig){ on = trig; }
+};
+
+/**** Voice base ****/
+class Voice : public Sig, public Ctl{
+public:
+    virtual float out(float freq, int trig){ return 0; } 
+    virtual float out(int note, int trig){ return 0; }
+    virtual float out(Note note){ return 0; }
+    virtual float out(){ return 0; }  
+
+    void connect(Sig* s){Sig::connect(s);}
+    void disconnect(Sig* s){Sig::disconnect(s);}  
+};
+
+/**** PolyVoice base ****/
+class PolyVoice :  public Sig, public Ctl{
+public:
+    int num;
+    virtual float out(int note, int trig){ return 0; }
+    virtual float out(Note note){ return 0; }
+    virtual float out(){ return 0; }
+    virtual Env** getEnvs(){return NULL;}  
+    
+    void connect(Sig* s){Sig::connect(s);}
+    void disconnect(Sig* s){Sig::disconnect(s);}  
+};
 
 /********  init  *************/
 void sl_init(){
-   // glob_ctl = new Glob_Ctl();
+    GLOB_NODE_INIT = 1;
+    glob_ctl = new Ctl();
     GLOB_NODE_INIT = 1;
     glob_sig = new Sig();
     init_globals();
+}
+
+void call_ctl(){
+    glob_ctl->callChildren();
 }
 
 void call_sig(){

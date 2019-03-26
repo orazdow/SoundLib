@@ -1,8 +1,9 @@
+
 #ifndef SOUNDLIB_GLOB_H
 #define SOUNDLIB_GLOB_H
 
 #include <math.h>
-// #include "lib/osio.h"
+#include "lib/osio.h"
 
 typedef unsigned int uint;
 
@@ -14,6 +15,12 @@ typedef unsigned int uint;
 #define inc_limit(a, limit) a = (a < limit) ? a+1 : a
 #define dec_limit(a, limit) a = (a > limit) ? a-1 : a
 
+#define master_independent 1
+
+#define msg_int 1
+#define msg_float 2
+#define msg_note 3
+
 class Ctl;
 class Sig;
 
@@ -21,8 +28,6 @@ static uint g_id = 0;
 static float _null = 0;
 
 static bool GLOB_NODE_INIT = 0;
-// static bool GLOB_SET = 0;
-// static bool GLOB_SIG_SET = 0;
 static bool SWITCH_CHAIN_INDEPENDENT = 0;
 
 static Ctl* glob_ctl;
@@ -30,7 +35,7 @@ static Sig* glob_sig;
 
 static unsigned int sampling_rate = 44100;
 static const unsigned int table_size = 512;
-static double step_rate = table_size/(double)sampling_rate;
+static double table_rate = table_size/(double)sampling_rate;
 // step = freq*stepRate
 
 static const double pi = acos(0)*2;
