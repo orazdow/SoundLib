@@ -14,8 +14,8 @@ typedef unsigned int uint;
 #define map_limit 512 //...
 #define inc_limit(a, limit) a = (a < limit) ? a+1 : a
 #define dec_limit(a, limit) a = (a > limit) ? a-1 : a
-
-#define master_independent 1
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define msg_int 1
 #define msg_float 2
@@ -28,10 +28,22 @@ static uint g_id = 0;
 static float _null = 0;
 
 static bool GLOB_NODE_INIT = 0;
-static bool SWITCH_CHAIN_INDEPENDENT = 0;
+
+#define chain_independent 1
+
+//make atomic
+static bool SWITCH_CHAIN_INDEPENDENT = !chain_independent;
+
+void set_chain_independent(bool b){
+    SWITCH_CHAIN_INDEPENDENT = b;
+}
 
 static Ctl* glob_ctl;
 static Sig* glob_sig;
+
+static Ctl* ctl_ctx = glob_ctl;
+static Sig* sig_ctx = glob_sig;
+
 
 static unsigned int sampling_rate = 44100;
 static const unsigned int table_size = 512;

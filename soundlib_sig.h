@@ -214,9 +214,11 @@ public:
 
 /**** 1pole lowpass ****/
 class Lp : public Sig{
+
     float param = 0;
     double hz = 0, a = 1, b = 1;
     float* cutoff;
+
 public:
 
     Lp(){
@@ -242,8 +244,156 @@ public:
         a = 1.0 - b;
     }
 
+    float filter(double in, double cutoff){
+        setCutoff(cutoff);
+        output = in*b + output*a;
+        //in1 = in;
+        return output;
+    }
+
 };
 
+/**** ASDR env ****/
+class Adsr : public Env{
+    
+    bool isAttack = true;
+    uint trig = 0;
 
+    float attack = 500;
+    float sustain = 0.7;
+    float decay = 500;
+    float release = 500;
+
+    float astep = 0.01;
+    float dstep = 0.01;
+    float rstep = 0.01;
+
+public:
+
+    Adsr(){
+        setADSR(attack, decay, sustain, release);       
+    }
+
+    void setAttack(float ms){
+        attack = ms;  
+        astep = 1/(sampling_rate*ms*0.001);
+    }
+    void setDecay(float ms){
+        decay = ms;
+        dstep = 1/(sampling_rate*ms*0.001);
+    }
+    void setSustain(float _lev){
+        sustain = _lev;
+        if(sustain > 1){sustain = 1;}
+        if(sustain < 0){sustain = 0;}
+    }
+    void setRelease(float ms){
+        release = ms;
+        rstep = 1/(sampling_rate*ms*0.001);
+    }
+    
+    void setADSR(float _a, float _d, float _s, float _r){
+        setAttack(_a); setDecay(_d); setSustain(_s); setRelease(_r);
+    }
+
+    void run(Msg _m){
+        trig = _m.value[_m.index]._n.on;
+        // printf("HEY%u\n", trig);
+    }
+
+    void dsp(){
+        out(trig);
+    }
+
+    float out(unsigned int trig){ //printf("%u\n", trig);
+        if(trig)
+        {  on = 1;
+           if(isAttack){
+              if(output < 1.0){output += astep;}else{ isAttack = false; }         
+           }
+           else{
+              if(output > sustain){output -= dstep;} 
+           }
+        }
+        else{
+            isAttack = true;
+            if(output > 0){output -= rstep;}else{ on = 0; }
+        }
+        
+        if(output > 1){output = 1;}
+        if(output < 0){output = 0;}
+
+        return output;
+    }
+
+    void reset(){
+        output = 0;
+        on = 0;
+        isAttack = true;
+    }
+
+};
+
+/****** test voice ******/
+class TestVoice : public Voice{
+
+public:
+
+    FnGen* osc1;
+    FnGen* osc2;
+    Adsr* env;
+    unsigned int on;
+    float hz;
+    FnGen* lfo;
+
+    
+    TestVoice(){ 
+       // set_chain_independent(true);
+        osc1 = independent FnGen(sl::saw);
+        osc2 = independent FnGen(sl::saw);
+        env = independent Adsr();
+        lfo = independent FnGen(sl::sin);
+       // set_chain_independent(false);
+        // connect(osc1);
+        // connect(env);
+ //       sig_connect(&hz, osc1);
+    }
+
+    ~TestVoice(){
+        delete osc1;
+        delete osc2;
+        delete env;
+        delete lfo;
+    }
+
+    void run(Msg _m){
+        Note n = _m.value[_m.index]._n;
+        on = n.on;
+        hz = mtof(n.note);
+
+       // copy_msg(_m);
+       // env->run(_m);
+    }
+
+    void dsp(){ 
+       output = 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
+       // output = osc1->out(hz) * env->out(on);
+        // osc1->dsp();
+       // env->dsp();
+      // output = osc1->output * env->output;
+    }
+
+    float out(Note note){
+        // hz = mtof(note.note+24)+pow(lfo->out(4.3),1)*4.4; // crossfade((lfo->out(4.3),1)*4.4,1,0.04);
+        hz = mtof(note.note);
+        on = note.on;
+        return 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
+        // return osc1->sin(hz)*env->out(on);
+    }
+
+    Env* getEnv(){
+        return env;
+    }
+};
 
 #endif //SOUNDLIB_SIG_H

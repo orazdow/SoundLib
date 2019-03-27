@@ -59,8 +59,6 @@ int main(){
     // replace default at right inlet
     amp.connect(&m, 1); 
 
-    PolyKey p(8);
-
     Lp filt(300);
     // add filter and cutoff lfo
     FnGen filtlfo(sl::sin, 6);
@@ -71,6 +69,15 @@ int main(){
     mm.connect(&filt, 1);
 
     car.connect(&filt);
+
+    PolyKey p(1);
+
+    // Adsr env;
+    // p.connect(&env);
+
+    TestVoice v;
+
+    p.connect(&v);
 
 /*
  // Sum as Bus, mult using inlet, auto_summing 1
@@ -124,12 +131,13 @@ int main(){
     //         printf("%f\n", *car.input);
     // }
 
-    Pa a(paFunc, &filt);
+    Pa a(paFunc, &v);
     a.start();
 
     while(1){
         call_ctl(); 
         disp(&p.m);
+        printf("\r %f", v.env->output);
         Sleep(20);
     }
 

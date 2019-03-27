@@ -35,8 +35,11 @@ public:
         this->id = g_id++;  
         _init((float)val, num_inlets, num_summing, map_limit);
 
-        if(!master && !SWITCH_CHAIN_INDEPENDENT){
-           glob_sig->connect(this); 
+        if(!SWITCH_CHAIN_INDEPENDENT){
+            if(!master)
+            glob_sig->connect(this); 
+        }else{
+            SWITCH_CHAIN_INDEPENDENT = 0;
         }
 
     }
@@ -145,14 +148,18 @@ void sig_disconnect(Sig* a, Sig* b, uint inlet){
 
 }
 
+void sig_connect(float* a, Sig* b, uint inlet = 0){
+    b->input_bus->add(a, (std::uintptr_t)a, inlet);
+}
+
 /************ Ctl ************/
 
 /**** Msg struct ****/
 struct Note{ // is_msg......
-    unsigned short note;
-    uint8_t vel;
-    bool on;
-    short pitch;
+    unsigned short note; //60
+    uint8_t vel; //127
+    bool on; //0
+    short pitch; //0
 };
 
 union Val{
@@ -163,9 +170,9 @@ union Val{
 
 struct Msg{
     Val* value;
-    uint num;
-    uint index;
-    uint8_t type;
+    uint num = 0;
+    uint index = 0;
+    uint8_t type = 0;
 };
 
 
@@ -189,9 +196,12 @@ public:
         this->id = g_id++;
         child_map = new Node_map<Ctl>(map_limit);
         parent_map = new Node_map<Ctl>(map_limit);
-        if(!master && (!SWITCH_CHAIN_INDEPENDENT || init_indep)){
-           glob_ctl->connect(this); 
+        if((!SWITCH_CHAIN_INDEPENDENT || init_indep)){
+            if(!master)
+            glob_ctl->connect(this); 
         }
+        if(SWITCH_CHAIN_INDEPENDENT) SWITCH_CHAIN_INDEPENDENT = 0;
+        
     }   
 
     virtual ~Ctl(){ delete[] m.value; delete child_map; delete parent_map; }
@@ -229,7 +239,7 @@ protected:
     // index always added
     void callChildren(){ 
         for(int i = 0; i < child_map->addptr; i++){
-            m.index = i;
+            m.index = MIN(i, m.num);
             child_map->nodes[i]->call(m);
         }
     }
@@ -250,7 +260,7 @@ protected:
 /***** Env base *****/
 class Env : public Sig, public Ctl{
 public: 
-    Env() : Ctl(master_independent){}
+    Env() : Ctl(chain_independent){}
     uint on = 0; 
     virtual float out(unsigned int trig){ return 0;}
     virtual void reset(){}
@@ -264,9 +274,13 @@ public:
     virtual float out(int note, int trig){ return 0; }
     virtual float out(Note note){ return 0; }
     virtual float out(){ return 0; }  
-
+     // ..............................
     void connect(Sig* s){Sig::connect(s);}
     void disconnect(Sig* s){Sig::disconnect(s);}  
+    void connect(Ctl* c){Ctl::connect(c);}
+    void disconnect(Ctl* c){Ctl::disconnect(c);}  
+    void connect(Env* e){Sig::connect((Sig*)e); Ctl::connect((Ctl*)e);}
+    void disconnect(Env* e){Sig::connect((Sig*)e); Ctl::disconnect((Ctl*)e);}      
 };
 
 /**** PolyVoice base ****/
@@ -280,7 +294,17 @@ public:
     
     void connect(Sig* s){Sig::connect(s);}
     void disconnect(Sig* s){Sig::disconnect(s);}  
+
 };
+
+/****** independent keyword *******/
+void* operator new (size_t size, std::nullptr_t) { 
+    set_chain_independent(1);
+    void* rtn = ::operator new(size);
+    return rtn;
+}
+// Type* obj = independent Type()
+#define independent new(nullptr)
 
 /********  init  *************/
 void sl_init(){
