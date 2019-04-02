@@ -70,14 +70,10 @@ int main(){
 
     car.connect(&filt);
 
-    PolyKey p(1);
-
-    // Adsr env;
-    // p.connect(&env);
-
-    TestVoice v;
-
-    p.connect(&v);
+    // voice patch test
+    // PolyKey p(1);
+    // TestVoice v;
+    // p.connect(&v);
 
 /*
  // Sum as Bus, mult using inlet, auto_summing 1
@@ -121,27 +117,19 @@ int main(){
     call_sig();
     printf("%f\n", m.output);
 */
-    // for(int i = 0; i < 20; ++i){
-    //         call_sig();
-    //         printf("%f\n", *car.input);
-    // }
 
-    // for(int i = 0; i < 20; ++i){
-    //         call_sig();
-    //         printf("%f\n", *car.input);
-    // }
-
-    Pa a(paFunc, &v);
+    Pa a(paFunc, &filt);
     a.start();
 
     while(1){
         call_ctl(); 
-        disp(&p.m);
-        printf("\r %f", v.env->output);
+        //disp(&p.m);
+        //printf("\r %f", v.env->output);
         Sleep(20);
     }
 
     a.terminate();
+
     return 0;
 }
 

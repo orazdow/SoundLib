@@ -342,21 +342,23 @@ public:
     FnGen* osc1;
     FnGen* osc2;
     Adsr* env;
-    unsigned int on;
+    unsigned int on = 0;
     float hz;
     FnGen* lfo;
 
     
     TestVoice(){ 
-       // set_chain_independent(true);
-        osc1 = independent FnGen(sl::saw);
-        osc2 = independent FnGen(sl::saw);
-        env = independent Adsr();
-        lfo = independent FnGen(sl::sin);
-       // set_chain_independent(false);
+       //  set_chain_independent(true);
+        set_context(this);
+        osc1 = new FnGen(sl::saw);
+        osc2 = new FnGen(sl::saw);
+        env = new Adsr();
+        lfo = new FnGen(sl::sin);
+     //    set_chain_independent(false);
         // connect(osc1);
         // connect(env);
- //       sig_connect(&hz, osc1);
+        sig_connect(&hz, osc1);
+        end_context();
     }
 
     ~TestVoice(){
@@ -367,20 +369,23 @@ public:
     }
 
     void run(Msg _m){
-        Note n = _m.value[_m.index]._n;
+
+        Note n = _m.value[_m.index]._n; 
         on = n.on;
         hz = mtof(n.note);
 
-       // copy_msg(_m);
-       // env->run(_m);
+         copy_msg(_m); 
+         //env->run(m); //
+        // env->run(_m);  // dsp()
+
     }
 
-    void dsp(){ 
-       output = 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
+    void dsp(){
+      // output = 0.5*(osc1->out(hz)+osc2->out(hz*0.999))*env->out(on);
        // output = osc1->out(hz) * env->out(on);
-        // osc1->dsp();
+       //  osc1->dsp();
        // env->dsp();
-      // output = osc1->output * env->output;
+        output = osc1->output * env->output;
     }
 
     float out(Note note){

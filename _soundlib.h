@@ -4,12 +4,34 @@
 #include "soundlib_glob.h"
 #include "map.h"
 
+/*
+    
+    alternate connect scheme using dynamic cast and virtual base class
+    -don't have to inherit Dual
+    -setContext() doesn't work...   
+*/
+
 void sig_connect(Sig* a, Sig* b, uint inlet = 0);
 void sig_disconnect(Sig* a, Sig* b, uint inlet = 0);
+void ctl_connect(Ctl* a, Ctl* b);
+void ctl_disconnect(Ctl* a, Ctl* b);
+
+class Node{
+public:
+
+    void connect(Node* b, uint inlet = 0);
+    void disconnect(Node* b, uint inlet = 0);
+
+    uint8_t node_type = 0;
+
+    virtual ~Node(){}
+
+};
+
 
 /************ Sig ************/
 
-class Sig{ 
+class Sig : public virtual Node{ 
 public:
 
     uint id;
@@ -32,7 +54,8 @@ public:
             master = 1;
             GLOB_NODE_INIT = 0;
         }
-        this->id = g_id++;  
+        this->id = g_id++; 
+        node_type |= TYPE_SIG;
         _init((float)val, num_inlets, num_summing, map_limit);
 
         if(!SWITCH_CHAIN_INDEPENDENT){
@@ -54,10 +77,6 @@ public:
     virtual void dsp(){ output = *input; } 
     virtual float out(){ return output = *input; }
     virtual float out(double in){ return output = (float)in; }
-
-    // return ptr...
-    void connect(Sig* child, uint inlet = 0){ sig_connect(this, child, inlet);}
-    void disconnect(Sig* child, uint inlet = 0){ sig_disconnect(this, child, inlet);}
 
     // init num inputs. summing status
     void init(uint _inlets = 1, bool _summing = auto_summing){
@@ -154,9 +173,6 @@ void sig_disconnect(Sig* a, Sig* b, uint inlet){
 void sig_connect(float* a, Sig* b, uint inlet = 0){
     b->input_bus->add(a, (std::uintptr_t)a, inlet);
 }
-void sig_disconnect(float* a, Sig* b, uint inlet = 0){
-    b->input_bus->remove((std::uintptr_t)a, inlet);
-}
 
 /************ Ctl ************/
 
@@ -182,7 +198,7 @@ struct Msg{
 };
 
 
-class Ctl{
+class Ctl : public virtual Node{
 
 public:
 
@@ -200,6 +216,7 @@ public:
             GLOB_NODE_INIT = 0;
         }
         this->id = g_id++;
+        node_type |= TYPE_CTL;
         child_map = new Node_map<Ctl>(map_limit);
         parent_map = new Node_map<Ctl>(map_limit);
         if(!(SWITCH_CHAIN_INDEPENDENT || init_indep)){
@@ -218,19 +235,6 @@ public:
     virtual void run(){}
     virtual void run(Msg _m){}
     virtual void onConnect(Ctl* child){}
-
-    void connect(Ctl* child){ 
-        child_map->add(child, child->id);
-        child->parent_map->add(this, this->id);
-        if(!master)
-            glob_ctl->disconnect(child);
-        onConnect(child);
-    }
-
-    void disconnect(Ctl* child){ 
-        child_map->remove(child->id);
-        child->parent_map->remove(this->id);
-    } 
 
 protected:
 
@@ -264,23 +268,62 @@ protected:
     }    
 };
 
-class Dual : public Sig, public Ctl{
-public:
+
+void ctl_connect(Ctl* a, Ctl* b){ 
+    a->child_map->add(b, b->id);
+    b->parent_map->add(a, a->id);
+    if(!a->master)
+        glob_ctl->disconnect(b);
+    a->onConnect(b);
+}
+
+void ctl_disconnect(Ctl* a, Ctl* b){ 
+    a->child_map->remove(b->id);
+    b->parent_map->remove(a->id);
+}
+
+
+void Node::connect(Node* b, uint inlet){
+
+    if((b->node_type == TYPE_SIG || b->node_type == TYPE_DUAL) && node_type != TYPE_CTL){
+        sig_connect(dynamic_cast<Sig*>(this), dynamic_cast<Sig*>(b), inlet);
+    }
+
+    if((b->node_type == TYPE_CTL || b->node_type == TYPE_DUAL) && node_type != TYPE_SIG){
+        ctl_connect(dynamic_cast<Ctl*>(this), dynamic_cast<Ctl*>(b));
+    }
+
+}
+
+void Node::disconnect(Node* b, uint inlet){
+    if((b->node_type == TYPE_SIG || b->node_type == TYPE_DUAL) && node_type != TYPE_CTL){
+        sig_disconnect(dynamic_cast<Sig*>(this), dynamic_cast<Sig*>(b), inlet);
+    }
+
+    if((b->node_type == TYPE_CTL || b->node_type == TYPE_DUAL) && node_type != TYPE_SIG){
+        ctl_disconnect(dynamic_cast<Ctl*>(this), dynamic_cast<Ctl*>(b));
+    }
+}
+
+
+
+// class Dual : public Sig, public Ctl{
+// public:
+
+//     void connect(Sig* s){Sig::connect(s);}
+//     void disconnect(Sig* s){Sig::disconnect(s);}  
+//     void connect(Ctl* c){Ctl::connect(c);}
+//     void disconnect(Ctl* c){Ctl::disconnect(c);}  
+//     void connect(Dual* d){Sig::connect((Sig*)d); Ctl::connect((Ctl*)d);}
+//     void disconnect(Dual* d){Sig::connect((Sig*)d); Ctl::disconnect((Ctl*)d);}   
     
-    void connect(Sig* s){Sig::connect(s);}
-    void disconnect(Sig* s){Sig::disconnect(s);}  
-    void connect(Ctl* c){Ctl::connect(c);}
-    void disconnect(Ctl* c){Ctl::disconnect(c);}  
-    void connect(Dual* d){Sig::connect((Sig*)d); Ctl::connect((Ctl*)d);}
-    void disconnect(Dual* d){Sig::connect((Sig*)d); Ctl::disconnect((Ctl*)d);}   
-    
-};
+// };
 
 
 /***** Env base *****/
-class Env : public Dual{
+class Env : public Sig, public Ctl{
 public: 
-    Env(){ glob_ctl->disconnect(this); }
+   // Env() : Ctl(chain_independent){}
     uint on = 0; 
     virtual float out(unsigned int trig){ return 0;}
     virtual void reset(){}
@@ -288,7 +331,7 @@ public:
 };
 
 /**** Voice base ****/
-class Voice : public Dual{
+class Voice : public virtual Sig, public virtual Ctl{
 public:
     Voice(){
         msg_alloc(1);
@@ -302,23 +345,25 @@ public:
 };
 
 /**** PolyVoice base ****/
-class PolyVoice : public Dual{
+class PolyVoice : public Sig, public Ctl{
 public:
-    uint num = 8; 
-    PolyVoice(uint n){num = n; msg_alloc(n);}
-    PolyVoice(){  msg_alloc(num); }
+    int num; // ctor
     virtual float out(int note, int trig){ return 0; }
     virtual float out(Note note){ return 0; }
     virtual float out(){ return 0; }
     virtual Env** getEnvs(){return NULL;}  
     
+
+
 };
 
-/**** subpatch / independence ****/
-void set_chain_independent(bool b){
-    SWITCH_CHAIN_INDEPENDENT = b;
-}
+
 void set_context(Dual* v){ 
+    ctl_context = (Ctl*)v;
+    sig_context = (Sig*)v;
+    SWITCH_CHAIN_INDEPENDENT = 1;
+}
+void set_context(Voice* v){ 
     ctl_context = (Ctl*)v;
     sig_context = (Sig*)v;
     SWITCH_CHAIN_INDEPENDENT = 1;

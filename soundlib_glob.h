@@ -21,29 +21,29 @@ typedef unsigned int uint;
 #define msg_float 2
 #define msg_note 3
 
+#define TYPE_NONE  0
+#define TYPE_SIG  0xf0
+#define TYPE_CTL  0xf
+#define TYPE_DUAL  0xff
+
 class Ctl;
 class Sig;
+class Dual;
 
-static uint g_id = 0;
-static float _null = 0;
+uint g_id = 0;
+float _null = 0;
+bool GLOB_NODE_INIT = 0;
 
-static bool GLOB_NODE_INIT = 0;
+// make extern -causes warning if init here-
+Ctl* glob_ctl = nullptr;
+Sig* glob_sig = nullptr;
 
 #define chain_independent 1
 
-//make atomic
-static bool SWITCH_CHAIN_INDEPENDENT = !chain_independent;
+bool SWITCH_CHAIN_INDEPENDENT = !chain_independent; // make atomic
 
-void set_chain_independent(bool b){
-    SWITCH_CHAIN_INDEPENDENT = b;
-}
-
-static Ctl* glob_ctl;
-static Sig* glob_sig;
-
-static Ctl* ctl_ctx = glob_ctl;
-static Sig* sig_ctx = glob_sig;
-
+Ctl* ctl_context  = nullptr;
+Sig* sig_context = nullptr;
 
 static unsigned int sampling_rate = 44100;
 static const unsigned int table_size = 512;
