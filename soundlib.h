@@ -28,10 +28,9 @@ public:
     friend void call_sig();
 
     Sig(double val){ 
-        if(GLOB_NODE_INIT){
+        if(!glob_sig)
             master = 1;
-            GLOB_NODE_INIT = 0;
-        }
+
         this->id = g_id++;  
         _init((float)val, num_inlets, num_summing, map_limit);
 
@@ -195,10 +194,9 @@ public:
     friend void call_ctl();
 
     Ctl(bool init_indep = 0){
-        if(GLOB_NODE_INIT){
+        if(!glob_ctl)
             master = 1;
-            GLOB_NODE_INIT = 0;
-        }
+        
         this->id = g_id++;
         child_map = new Node_map<Ctl>(map_limit);
         parent_map = new Node_map<Ctl>(map_limit);
@@ -345,9 +343,7 @@ void* operator new (size_t size, std::nullptr_t) {
 
 /********  init  *************/
 void sl_init(){
-    GLOB_NODE_INIT = 1;
     glob_ctl = new Ctl();
-    GLOB_NODE_INIT = 1;
     glob_sig = new Sig();
     init_globals();
 }

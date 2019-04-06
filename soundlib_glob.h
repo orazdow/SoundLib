@@ -32,7 +32,6 @@ class Dual;
 
 uint g_id = 0;
 float _null = 0;
-bool GLOB_NODE_INIT = 0;
 
 // make extern -causes warning if init here-
 Ctl* glob_ctl = nullptr;

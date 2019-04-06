@@ -1,6 +1,7 @@
 winbuild
 build
 prev
+test
 *.exe
 *.o
 .vs
