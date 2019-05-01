@@ -4,7 +4,9 @@
 #include <cstdio>
 #include <cstdint>
 
-typedef void(*op);
+struct IWORD;
+
+typedef IWORD(*op)(IWORD* a, IWORD* b); // or void(*op)(uint& ip(null), Stack<IWORD>% stack)
 
 enum OPTYPE{
 	W_NULL,
@@ -13,11 +15,13 @@ enum OPTYPE{
 	W_OP_SUB,
 	W_OP_MULT,
 	W_OP_DIV,
-	W_OP_USUB
+	W_OP_USUB,
+	W_OP_LP,
+	W_OP_RP
 };
 
 enum WTYPE{
-   NUL, OP, IVAL, UVAL, FVAL, SVAL, IDENT
+   NUL, OP, IVAL, UVAL, FVAL, STR, FLTPTR, VPTR, IDENT
 };
 
 struct Operator{
@@ -31,14 +35,29 @@ union Value{
 	float f;
 	int i;
 	unsigned int ui;
-	char* str;
+	char* s;
+	float* fp;
+	void* vp;
 	Operator op;
 };
 
 struct IWORD{
 	Value value;
 	WTYPE type; 
+	char* str;
 };
+
+static IWORD null_word = IWORD{0,NUL,0};
+
+static IWORD OP_ADD(IWORD* a, IWORD* b){
+	float v = a->value.f + b->value.f;
+	return IWORD{v, FVAL, 0};
+}
+
+static IWORD OP_MULT(IWORD* a, IWORD* b){
+	float v = a->value.f * b->value.f;
+	return IWORD{v, FVAL, 0};
+}
 
 
 template<class T>
@@ -46,11 +65,11 @@ class Stack{
 public:
 
 	T* data;
-	size_t index = -1;
-	size_t max;
+	int index = -1;
+	int max;
 
-	Stack(const size_t num){
-		data = new T[num];
+	Stack(const int num){
+		data = new T[num]();
 		max = num;
 	}
 	Stack() : Stack(512){}
@@ -61,27 +80,29 @@ public:
 			data[++index] = el;
 			return true;
 		}else{
-			printf("stack full\n");
 			return false;
 		}
 	}
 
-	T pop(){
+	T* pop(){
 		if(index >= 0)
-			return data[index--];
+			return &data[index--];
 		else{
-			printf("stack empty\n");
-			return NULL;
+			return nullptr;
 		} 
 	}
 
-	T peek(){
-		if(index >= 0)
-			return data[index];
-		else{
-			printf("stack empty\n");
-			return NULL;
+	T* peek(){ 
+		if(index >= 0){ 
+			return &data[index];
+		}
+		else{ 
+			return nullptr;
 		} 
+	}
+
+	int size(){
+		return index+1;
 	}
 
 };
@@ -93,7 +114,11 @@ public:
 	T* data;
 	int tail = 0, head = 0;
 	int size;
-	Queue(int _size = 512){ size = _size; }
+	Queue(const int _size = 512){ 
+		size = _size; 
+		data = new T[size]();
+	}
+	~Queue(){ delete data; }
 
 	bool push(T el){
 		if((head+1) % size != tail){
@@ -101,32 +126,43 @@ public:
 			head = (head+1)%size;
 			return true;
 		}else{
-			printf("queue full\n");
 			return false;
 		}
-
 	}
 
-	T pop(){
+	T* pop(){
 		if(tail != head){
-			T rtn = data[tail];
+			T* rtn = &data[tail];
 			tail = (tail+1)%size;
 			return rtn;
 		}else{
-			printf("queue empty\n");
-			return NULL;
+			return nullptr;
 		}
 	}	
 
-	T peek(){
+	T* peek(){
 		if(tail != head){
-			return data[tail];
+			return &data[tail];
 		}else{
-			printf("queue empty\n");
-			return NULL;
+			return nullptr;
 		}		
+	}
+
+	void tail_reset(){
+		tail = 0;
+	}
+
+	int length(){
+		if(head > tail){
+			return head - tail;
+		}else if(tail > head){
+			return size - (tail-head);
+		}else{
+			return 0;
+		}
 	}
 	
 };
+
 
 #endif

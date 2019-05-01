@@ -7,13 +7,20 @@
 #include <unordered_map>
 #include <string_view>
 
-std::unordered_map<std::string_view, Operator> operatorMap;	
 
 class ShuntingYard{
 public:
 
+	std::vector<IWORD>& tokens;
+	Stack<IWORD> operators;
+	Queue<IWORD> output;
+	Stack<IWORD> eval;
+	ShuntingYard(std::vector<IWORD>& tokens);
 
-	
-}
+	void load();
+	void printRPN();
+	float evaluate();
+
+};
 
 #endif

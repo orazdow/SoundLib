@@ -58,13 +58,28 @@ bool doubleOp(char a, char b){ //handle **, == , ++ -- >= <=
 	return false;
 }
 
+
 /***************  Lexer  *****************/
 Lexer::Lexer(){
 	alloc_buff(&buffer, BUFF_LEN);
+	operatorMap = {
+	 	{ "+", {10, false, W_OP_ADD, OP_ADD} },
+	 	{ "-", {10, false, W_OP_SUB, NULL} },
+	 	{ "*", {20, false, W_OP_MULT, OP_MULT} },
+	 	{ "/", {20, false, W_OP_DIV, NULL} },
+	 	{ "-u", {30, true, W_OP_USUB, NULL} },
+	 	{ "(", {50, false, W_OP_LP, NULL} },
+	 	{ ")", {50, false, W_OP_RP, NULL} }
+	 };
 }
 
 Lexer::~Lexer(){
 	free_buff(&buffer);
+}
+
+void Lexer::dump(Lexer::ScanMode type){
+	this->mode = DUMP;
+	this->lastMode = type;
 }
 
 bool Lexer::load(const char str[]){
@@ -82,12 +97,36 @@ bool Lexer::load(const char str[]){
 	return true;
 }
 
-bool Lexer::printLexemes(){
-	for(auto p : tokens){
-		printf("%s\n", p);
+void Lexer::printLexemes(bool info){
+
+	for(int i = 0; i < tokens.size(); i++){
+		printf("%s ", tokens[i]);
+		if(info){
+			IWORD w = lexemes[i];
+			switch(w.type){
+				case NUL :
+					printf("null \n");
+					break;
+				case OP :
+					printf("op %u %u % u\n", w.value.op.type, w.value.op.precedence, w.value.op.rightAssoc);
+					break;
+				case IVAL :
+					printf("int %i\n", w.value.i);
+					break;
+				case UVAL : //not imp
+					printf("uint %i\n", w.value.i);
+					break;
+				case FVAL :
+					printf("float %f\n", w.value.f);
+					break;
+				case STR :
+					printf("string %s\n", w.value.s);
+				case IDENT : //not imp
+					break;
+			}
+		}
 	}
 	printf("\n");
-	
 }
 
 /* tokenize buffer into lexems:  */
@@ -128,11 +167,11 @@ bool Lexer::scan(){
 					else if(isOperator(c))
 						mode = ScanMode::OPERATOR;
 					else if(isSeperator(c))
-						mode = ScanMode::DUMP;
+						dump(OPERATOR);
 				}
 				else{ mode = ScanMode::UNEXPECTED; }
 
-				if(*p == '\0' && mode == ScanMode::DUMP){ hold = true; }
+				if(*p == '\0'){ hold = true; dump(mode); }
 				
 				break;
 
@@ -144,7 +183,7 @@ bool Lexer::scan(){
 					break;
 				}
 				else if(isOperator(c) || isSeperator(c) || c == ' '){ 
-					mode = ScanMode::DUMP;
+					dump(ALPHATOK);
 					break;
 				}
 				else{
@@ -162,8 +201,7 @@ bool Lexer::scan(){
 					if(c == '.'){ dot = true; }
 					break;
 				}else if(isOperator(c) || isSeperator(c) || c == ' '){
-					dot = false;
-					mode = ScanMode::DUMP;
+					dump(NUMTOK);
 					break;
 				}
 				else{ dot = false; mode = ScanMode::UNEXPECTED; break; }
@@ -172,7 +210,7 @@ bool Lexer::scan(){
 
 			case ScanMode::OPERATOR : 
 				if(isLetter(c) || isNumber(c) || isSeperator(c) || c == ' '){
-					mode = ScanMode::DUMP;
+					dump(OPERATOR);
 					break;
 				}
 				else if(isOperator(c)){
@@ -181,7 +219,7 @@ bool Lexer::scan(){
 						INC(i);
 						p++;			
 					}
-					mode = ScanMode::DUMP;
+					dump(OPERATOR);
 					break;
 				}
 				else{
@@ -200,11 +238,13 @@ bool Lexer::scan(){
 				temp[i] = '\0'; 
 				strcpy(tok, temp); 
 				tokens.push_back(tok);
+				lexemes.push_back(makeLexeme(tok, lastMode, dot));
 				tok += (i+1);
 				i = 0;
 
 				mode = ScanMode::BEGIN;
 				hold = false;
+				dot = false;
 
 			break;
 
@@ -216,3 +256,29 @@ bool Lexer::scan(){
 	return true;
 }
 
+IWORD Lexer::makeLexeme(char* str, Lexer::ScanMode mode, bool dot){ 
+
+	IWORD rtn;
+	switch(mode){
+		case ScanMode::ALPHATOK : 
+			rtn.type = WTYPE::STR;
+			rtn.value.s = str;
+		break;
+		case ScanMode::NUMTOK : 
+			if(dot){ 
+				rtn.type = WTYPE::FVAL;
+				rtn.value.f = atof(str);
+			}else{ 
+				rtn.type = WTYPE::IVAL;
+				rtn.value.f = atoi(str);
+			}
+		break;
+		case ScanMode::OPERATOR :
+			rtn.type = WTYPE::OP;
+			rtn.value.op = operatorMap[str];
+		break;
+	}
+
+	rtn.str = str;
+	return rtn;
+}
