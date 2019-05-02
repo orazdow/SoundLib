@@ -21,7 +21,7 @@ enum OPTYPE{
 };
 
 enum WTYPE{
-   NUL, OP, IVAL, UVAL, FVAL, STR, FLTPTR, VPTR, IDENT
+   NUL, OP, IVAL, UVAL, FVAL, STR, FPTR, VPTR, IDENT
 };
 
 struct Operator{
@@ -50,13 +50,48 @@ struct IWORD{
 static IWORD null_word = IWORD{0,NUL,0};
 
 static IWORD OP_ADD(IWORD* a, IWORD* b){
-	float v = a->value.f + b->value.f;
-	return IWORD{v, FVAL, 0};
+	float _a = (a->type == FPTR) ? *(a->value.fp) : a->value.f;
+	float _b = (b->type == FPTR) ? *(b->value.fp) : b->value.f;
+	return IWORD{ _a + _b, FVAL, 0 };
 }
 
 static IWORD OP_MULT(IWORD* a, IWORD* b){
-	float v = a->value.f * b->value.f;
-	return IWORD{v, FVAL, 0};
+	float _a = (a->type == FPTR) ? *(a->value.fp) : a->value.f;
+	float _b = (b->type == FPTR) ? *(b->value.fp) : b->value.f;
+	return IWORD{ _a * _b, FVAL, 0 };
+}
+
+static IWORD OP_SUB(IWORD* a, IWORD* b){
+	float _a = (a->type == FPTR) ? *(a->value.fp) : a->value.f;
+	float _b = (b->type == FPTR) ? *(b->value.fp) : b->value.f;
+	return IWORD{ _a - _b, FVAL, 0 };
+}
+
+static IWORD OP_DIV(IWORD* a, IWORD* b){
+	float _a = (a->type == FPTR) ? *(a->value.fp) : a->value.f;
+	float _b = (b->type == FPTR) ? *(b->value.fp) : b->value.f;
+	return IWORD{ _a / _b, FVAL, 0 };
+}
+
+static IWORD make_word(float* fp, char* str){
+	IWORD rtn = IWORD{0, FPTR, str};
+	rtn.value.fp = fp;
+	return rtn;
+}
+static IWORD make_word(void* vp, char* str){
+	IWORD rtn = IWORD{0, FPTR, str};
+	rtn.value.vp = vp;
+	return rtn;
+}
+static IWORD make_word(float f, char* str){
+	IWORD rtn = IWORD{0, FPTR, str};
+	rtn.value.f = f;
+	return rtn;
+}
+static IWORD make_word(int i, char* str){
+	IWORD rtn = IWORD{0, FPTR, str};
+	rtn.value.i = i;
+	return rtn;
 }
 
 

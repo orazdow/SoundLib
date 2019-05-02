@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "lexer.h"
+#include "symtable.h"
 #include "parser.h"
 
 #endif

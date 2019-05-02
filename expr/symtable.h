@@ -3,19 +3,21 @@
 
 #include "types.h"
 #include <unordered_map>
+#include <string_view>
 
 
-class symtable{
+class SymTable{
 public:
 
-	std::unordered_map<const char*, IWORD> table;
+	std::unordered_map<std::string_view, IWORD> table;
+	float defval = 3000;
 
-	symtable();
-	~symtable();
+	SymTable();
+	~SymTable();
 
-	void make_var(const char* id, float* val);
+	void make_var(char* id, float* val);
 	void update_token(IWORD& word);
-	IWORD get_var(const char* id);
+	IWORD get_var(char* id, int& found);
 	
 };
 

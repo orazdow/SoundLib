@@ -8,7 +8,7 @@ int main(){
 
 	char a[] = " var a = (3.5 + b); a->carrierOsc;";
 	char b[] = " 5 * 6 + 7 ";
-	char c[] = "3 + 4.4*(2+5) * 7";
+	char c[] = "3 + 4.4*(2+5) * 7 + bepp";
 
 	str.insert(0, c);
 	//printf("%s\n%lu\n", str.c_str(), str.size());
@@ -18,9 +18,11 @@ int main(){
 
 	if(lexer.scan())
         lexer.printLexemes();
-    else printf("lexer error/n");
+    else printf("lexer error\n");
 
-    ShuntingYard sh(lexer.lexemes);
+    SymTable symtable;
+
+    ShuntingYard sh(lexer.lexemes, symtable);
     sh.load();
     sh.printRPN();
     printf("evaluating\n");

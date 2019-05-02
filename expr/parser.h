@@ -2,6 +2,7 @@
 #define PARSER_H
 
 #include "types.h"
+#include "symtable.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -12,10 +13,11 @@ class ShuntingYard{
 public:
 
 	std::vector<IWORD>& tokens;
+	SymTable& symtable;
 	Stack<IWORD> operators;
 	Queue<IWORD> output;
 	Stack<IWORD> eval;
-	ShuntingYard(std::vector<IWORD>& tokens);
+	ShuntingYard(std::vector<IWORD>& tokens, SymTable& symtable);
 
 	void load();
 	void printRPN();

@@ -49,7 +49,7 @@ public:
 
 	std::unordered_map<std::string_view, Operator> operatorMap;	
 
-	Lexer();
+	Lexer(const long len = 0);
 	~Lexer();
 
 	bool load(const char str[]);

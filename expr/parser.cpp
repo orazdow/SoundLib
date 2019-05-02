@@ -2,7 +2,7 @@
 #include "parser.h"
 
 
-ShuntingYard::ShuntingYard(std::vector<IWORD>& _tokens) : tokens(_tokens){}
+ShuntingYard::ShuntingYard(std::vector<IWORD>& _tokens, SymTable& _symtable) : tokens(_tokens), symtable(_symtable){}
 
 float ShuntingYard::evaluate(){
 
@@ -12,7 +12,7 @@ float ShuntingYard::evaluate(){
 		w = output.pop();
 		if(!w) break;
 
-		if(w->type == IVAL || w->type == FVAL || w->type == UVAL || w->type == FLTPTR){
+		if(w->type == IVAL || w->type == FVAL || w->type == UVAL || w->type == FPTR){
 			eval.push(*w);
 		}
 		else if(w->type == STR){
@@ -50,12 +50,18 @@ void ShuntingYard::printRPN(){
 
 void ShuntingYard::load(){
 
-	for(auto& token : tokens){
+	for(IWORD& token : tokens){
 	
-		if(token.type == IVAL || token.type == FVAL || token.type == UVAL || token.type == FLTPTR){
+		if(token.type == IVAL || token.type == FVAL || token.type == UVAL || token.type == FPTR){
 			output.push(token); 
 		}
 		else if(token.type == STR){
+			printf("got string: %s\n", token.value.s);
+			int found = 0;
+			IWORD ret = symtable.get_var(token.value.s, found);
+			if(found){
+				output.push(ret);
+			}
 			// use symtable to update
 		}
 		else if(token.type == OP){ 

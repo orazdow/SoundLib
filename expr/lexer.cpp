@@ -60,13 +60,13 @@ bool doubleOp(char a, char b){ //handle **, == , ++ -- >= <=
 
 
 /***************  Lexer  *****************/
-Lexer::Lexer(){
-	alloc_buff(&buffer, BUFF_LEN);
+Lexer::Lexer(const long _len){
+	alloc_buff(&buffer, _len ? _len : BUFF_LEN);
 	operatorMap = {
 	 	{ "+", {10, false, W_OP_ADD, OP_ADD} },
-	 	{ "-", {10, false, W_OP_SUB, NULL} },
+	 	{ "-", {10, false, W_OP_SUB, OP_SUB} },
 	 	{ "*", {20, false, W_OP_MULT, OP_MULT} },
-	 	{ "/", {20, false, W_OP_DIV, NULL} },
+	 	{ "/", {20, false, W_OP_DIV, OP_DIV} },
 	 	{ "-u", {30, true, W_OP_USUB, NULL} },
 	 	{ "(", {50, false, W_OP_LP, NULL} },
 	 	{ ")", {50, false, W_OP_RP, NULL} }
@@ -99,8 +99,8 @@ bool Lexer::load(const char str[]){
 
 void Lexer::printLexemes(bool info){
 
-	for(int i = 0; i < tokens.size(); i++){
-		printf("%s ", tokens[i]);
+	for(int i = 0; i < lexemes.size(); i++){
+		printf("%s ", lexemes[i].str);
 		if(info){
 			IWORD w = lexemes[i];
 			switch(w.type){
@@ -171,24 +171,29 @@ bool Lexer::scan(){
 				}
 				else{ mode = ScanMode::UNEXPECTED; }
 
-				if(*p == '\0'){ hold = true; dump(mode); }
+				if(*p == '\0'){ 
+					hold = true; 
+					dump(mode); 
+				}
 				
 				break;
 
-			case ScanMode::ALPHATOK :
+			case ScanMode::ALPHATOK : 
 				if(isLetter(c) || isNumber(c)){
 					temp[i] = c;
 					INC(i);
 					p++;
-					break;
 				}
 				else if(isOperator(c) || isSeperator(c) || c == ' '){ 
 					dump(ALPHATOK);
-					break;
 				}
 				else{
 					mode = ScanMode::UNEXPECTED;
 					break;
+				}
+				if(*p == '\0'){ 
+					hold = true; 
+					dump(mode); 
 				}
 
 			break;
@@ -199,19 +204,23 @@ bool Lexer::scan(){
 					INC(i);
 					p++;
 					if(c == '.'){ dot = true; }
-					break;
-				}else if(isOperator(c) || isSeperator(c) || c == ' '){
+				}
+				else if(isOperator(c) || isSeperator(c) || c == ' '){
 					dump(NUMTOK);
-					break;
+
 				}
 				else{ dot = false; mode = ScanMode::UNEXPECTED; break; }
+
+				if(*p == '\0'){ 
+					hold = true; 
+					dump(mode); 
+				}
 
 			break;
 
 			case ScanMode::OPERATOR : 
 				if(isLetter(c) || isNumber(c) || isSeperator(c) || c == ' '){
 					dump(OPERATOR);
-					break;
 				}
 				else if(isOperator(c)){
 					if(doubleOp(*(p-1), c)){
@@ -220,11 +229,14 @@ bool Lexer::scan(){
 						p++;			
 					}
 					dump(OPERATOR);
-					break;
 				}
 				else{
 					mode = ScanMode::UNEXPECTED;
 					break;
+				}
+				if(*p == '\0'){ 
+					hold = true; 
+					dump(mode); 
 				}
 			break;
 
@@ -237,7 +249,7 @@ bool Lexer::scan(){
 				/* merge tokens or check for syntax errors here.. */
 				temp[i] = '\0'; 
 				strcpy(tok, temp); 
-				tokens.push_back(tok);
+				// tokens.push_back(tok);
 				lexemes.push_back(makeLexeme(tok, lastMode, dot));
 				tok += (i+1);
 				i = 0;

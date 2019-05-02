@@ -18,7 +18,7 @@ rem SET includes=/ID:\libraries\portaudio\include
 set debug=/Zi /DEBUG
 rem set static=/MT
 
-SET files=main.cpp expr.cpp lexer.cpp parser.cpp
+SET files=main.cpp expr.cpp lexer.cpp parser.cpp symtable.cpp
 
 SET opts=/Fe%target% /Fo%builddir%\ %static% %debug% /EHsc /std:c++17
 
