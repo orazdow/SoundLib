@@ -136,6 +136,10 @@ public:
 		} 
 	}
 
+	void reset(){
+		index = -1;
+	}
+
 	int size(){
 		return index+1;
 	}
@@ -183,7 +187,7 @@ public:
 		}		
 	}
 
-	void tail_reset(){
+	void reset_tail(){
 		tail = 0;
 	}
 

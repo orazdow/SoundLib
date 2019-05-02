@@ -8,7 +8,7 @@
 typedef unsigned int uint;
 
 #define auto_summing 1 
-#define num_inlets 8
+#define num_inlets 64
 #define num_summing 64
 
 #define map_limit 512 //...

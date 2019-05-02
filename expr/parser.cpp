@@ -28,7 +28,8 @@ float ShuntingYard::evaluate(){
 		// 	printf("%f ", eval.data[i].value.f);
 		// } printf("\n");
 	}
-
+	output.reset_tail();
+	eval.reset();
 	return eval.data[0].value.f;
 }
 
@@ -56,13 +57,15 @@ void ShuntingYard::load(){
 			output.push(token); 
 		}
 		else if(token.type == STR){
-			printf("got string: %s\n", token.value.s);
+			// printf("got string: %s\n", token.value.s);
 			int found = 0;
 			IWORD ret = symtable.get_var(token.value.s, found);
 			if(found){
 				output.push(ret);
+			}else{
+				printf("symbol not found: %s\n", token.value.s);
 			}
-			// use symtable to update
+			
 		}
 		else if(token.type == OP){ 
 

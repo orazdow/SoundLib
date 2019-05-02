@@ -16,9 +16,10 @@ int main(){
 	Lexer lexer;
 	lexer.load(str.c_str());
 
-	if(lexer.scan())
-        lexer.printLexemes();
-    else printf("lexer error\n");
+	if(!lexer.scan()){
+        printf("lexer error\n");
+	}
+    else lexer.printLexemes();
 
     SymTable symtable;
 
