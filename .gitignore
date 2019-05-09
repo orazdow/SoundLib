@@ -1,6 +1,5 @@
 winbuild
 build
-prev
 *.exe
 *.o
 .vs

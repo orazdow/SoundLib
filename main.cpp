@@ -1,9 +1,10 @@
 
-#include "soundlib.h"
-#include "soundlib_sig.h"
-#include "soundlib_ctl.h"
-#include "lib/pa.h"
-#include "stdio.h"
+#include "sl/lib/osio.h"
+#include "sl/lib/pa.h"
+#include "sl/soundlib.h"
+#include "sl/soundlib_sig.h"
+#include "sl/soundlib_ctl.h"
+#include "sl/expr.h"
 
 void printbus(Sig* n, uint inlet);
 void printchilds(Sig* n);
@@ -16,7 +17,7 @@ void paFunc(const float* in, float* out, unsigned long frames, void* data){
     
     for(unsigned long i = 0; i < frames; i++){ 
         call_sig();
-        *out++ =  o->output*0.33;
+        *out++ =  o->output*0.7;
     }
 }
 
@@ -40,35 +41,53 @@ int main(){
     s.connect(&car);
 */
  
+    Sig out;
 
   // fm test Sum, Mult
-    Osc mod(434); 
+    // Osc mod(434); 
+    // Osc car;
+    // Mult m(2000); 
+    // mod.connect(&m);
+    // int fundamental = 100;
+    // Sum s(fundamental);
+    // m.connect(&s);
+    // s.connect(&car);
+    // // adding lfo
+    // FnGen lfo(sl::saw, 1);
+    // Sum s2(1); // need expr
+    // lfo.connect(&s2); // need expr
+    // Mult amp(2000);
+    // s2.connect(&amp);
+    // // replace default at right inlet
+    // amp.connect(&m, 1); 
+
+    // Lp filt(300);
+    // // add filter and cutoff lfo
+    // FnGen filtlfo(sl::sin, 6);
+    // Sum s3(1.5); // need expressions....
+    // filtlfo.connect(&s3); //
+    // Mult mm(1000); //
+    // s3.connect(&mm); // 
+    // mm.connect(&filt, 1);
+
+    // car.connect(&filt);
+
+    // filt.connect(&out);
+
+    Osc mod(434);
     Osc car;
-    Mult m(2000); 
-    mod.connect(&m);
-    int fundamental = 100;
-    Sum s(fundamental);
-    m.connect(&s);
-    s.connect(&car);
-    // adding lfo
-    FnGen lfo(sl::saw, 1);
-    Sum s2(1); // need expr
-    lfo.connect(&s2); // need expr
-    Mult amp(2000);
-    s2.connect(&amp);
-    // replace default at right inlet
-    amp.connect(&m, 1); 
+    // Sig index(2000);
+    FnGen lfo(sl::sin, 1);
+    Sig freq(100);
 
-    Lp filt(300);
-    // add filter and cutoff lfo
-    FnGen filtlfo(sl::sin, 6);
-    Sum s3(1.5); // need expressions....
-    filtlfo.connect(&s3); //
-    Mult mm(1000); //
-    s3.connect(&mm); // 
-    mm.connect(&filt, 1);
+    Expr expr("f0* ( (1+f1) *2000 ) + f2");
 
-    car.connect(&filt);
+    mod.connect(&expr);
+    lfo.connect(&expr, 1);
+    freq.connect(&expr, 2);
+    expr.connect(&car);
+
+    car.connect(&out);
 
     // voice patch test
     // PolyKey p(1);
@@ -118,14 +137,14 @@ int main(){
     printf("%f\n", m.output);
 */
 
-    Pa a(paFunc, &filt);
+    Pa a(paFunc, &out);
     a.start();
 
     while(1){
         call_ctl(); 
         //disp(&p.m);
         //printf("\r %f", v.env->output);
-        Sleep(20);
+        // sleep(20);
     }
 
     a.terminate();

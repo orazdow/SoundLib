@@ -1,46 +1,42 @@
-TARGET := out.exe
+target := out
 
-SRCDIR_2 = lib
+sources := main.mm sl/lib/osio.mm sl/lib/pa.cpp sl/expr/lexer.cpp sl/expr/symtable.cpp sl/expr/parser.cpp
 
-# SRC := $(wildcard *.cpp)
-SRC := main.cpp
-SRC += $(wildcard $(SRCDIR_2)/*.cpp)
+cxx := g++ -std=c++1z
 
-# comment out to use basedir
-# builddir = build/
+frameworks := -framework Foundation -framework Cocoa 
+libs := -lobjc $(frameworks)
 
-INCLUDE = -ID:/libraries/portaudio/include
-LIBS = -LD://libraries/portaudio/build 
-LIBS += -lportaudio
+includes := -I ../libraries/portaudio/include
+libs += -L /usr/local/lib
+libs += -lportaudio
 
-CXX := g++
-# FLAGS := -Wall
+headers := $(wildcard sl/*.h) $(wildcard sl/lib/*.h) $(wildcard sl/expr/*.h)
+objects := $(addsuffix .o, $(basename $(notdir $(sources))))
 
-OBJECTS :=  $(addprefix $(builddir), $(addsuffix .o, $(basename $(notdir $(SRC)))))
-DEPS = $(wildcard *.h)
-DEPS += $(wildcard $(SRCDIR_2)/*.h)
-
-
-$(builddir)%.o: %.cpp $(DEPS)
-	$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@ $(LIBS)
+%.o: %.mm $(headers)
+	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-$(builddir)%.o: $(SRCDIR_2)/%.cpp $(DEPS)
-	$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@ $(LIBS)
+%.o: sl/lib/%.mm $(headers)
+	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-all: make_dir $(TARGET)
+%.o: sl/lib/%.cpp $(headers)
+	$(cxx) $(flags) $(includes) -c $< -o $@ 
+	@echo $@
 
-$(TARGET): $(OBJECTS)
-	$(CXX) $^ -o $@ $(LIBS)
+%.o: sl/expr/%.cpp $(headers)
+	$(cxx) $(flags) $(includes) -c $< -o $@ 
+	@echo $@
 
-make_dir : $(builddir)
+all: $(target)
 
-$(builddir):
-	mkdir -p $(builddir)
+$(target): $(objects) 
+	$(cxx) $(objects) -o $(target) $(libs)
 
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -f $(objects) $(target)
 
 run:
-	@./$(TARGET)
+	@./$(target)

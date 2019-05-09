@@ -8,15 +8,18 @@
 typedef unsigned int uint;
 
 #define auto_summing 1 
-#define num_inlets 8
+#define num_inlets 64
 #define num_summing 64
 
 #define map_limit 512 //...
 #define inc_limit(a, limit) a = (a < limit) ? a+1 : a
 #define dec_limit(a, limit) a = (a > limit) ? a-1 : a
+#ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+#ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
-
+#endif
 #define msg_int 1
 #define msg_float 2
 #define msg_note 3
@@ -32,7 +35,6 @@ class Dual;
 
 uint g_id = 0;
 float _null = 0;
-bool GLOB_NODE_INIT = 0;
 
 // make extern -causes warning if init here-
 Ctl* glob_ctl = nullptr;
@@ -50,7 +52,10 @@ static const unsigned int table_size = 512;
 static double table_rate = table_size/(double)sampling_rate;
 // step = freq*stepRate
 
+#if OS_OSX
+#else
 static const double pi = acos(0)*2;
+#endif
 static const double tau = 2*pi;
 
 // namespace constants

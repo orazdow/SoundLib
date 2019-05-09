@@ -1,69 +1,63 @@
-#ifndef OSIO_H
-#define OSIO_H
 
-#define WIN32 1
-#define OSX 0
-#define LINUX 0
+#include "osio.h"
 
-static long mouseX = 0;
-static long mouseY = 0;
+long mouseX = 0;
+long mouseY = 0;
 
-static inline bool getKeyState(unsigned int key);
-static unsigned int getScreenWidth();
-static unsigned int getScreenHeight();
-static inline void getCursorPos();
-static inline void setConsolePos(short x, short y);
-static inline void clearScr();
-void setCursorVis(bool visibility);
-void initConsole();
-struct ConsoleBuffer;
-static inline void writeConsoleBuffer(ConsoleBuffer* b);
-#define set_buff_char(_buffer, _index, _char)
-
-void (*END_CB)() = NULL;
+void (*END_CB)() = 0;
 
 void setEndCb(void(*cb)(void)){
-    END_CB = cb;
+	END_CB = cb;
 }
 
-#if WIN32
 
-	#include "windows.h"
-	#pragma comment (lib, "user32.lib")
+ #if OS_OSX
 
+ 	void sleepMs(unsigned long ms){
+ 		sleep(ms);
+ 	}
 
-	static POINT point;
-	static HANDLE CONSOLE, CONSOLE_IN;
-	WORD charAttributes = 7;
-	COORD origin = {0,0};
-	BOOL CtrlHandler(DWORD fdwCtrlType);
-	#undef set_buff_char
- 	#define set_buff_char(_buffer, _index, _char) _buffer[_index].Char.AsciiChar = _char
-
-	static inline bool getKeyState(unsigned int key){
-		return (bool)GetAsyncKeyState(key);
+	unsigned int getScreenWidth(){
+		return [NSScreen mainScreen].frame.size.width;
 	}
 
-	static inline unsigned int getScreenWidth(){
+	unsigned int getScreenHeight(){
+		return [NSScreen mainScreen].frame.size.height;
+	}
+
+	void getCursorPos(){
+		mouseX = [NSEvent mouseLocation].x;
+		mouseY = [NSEvent mouseLocation].y;
+	}
+
+ #endif
+
+#if OS_WIN32
+
+ 	void sleepMs(unsigned long ms){
+ 		Sleep(ms);
+ 	}
+
+	unsigned int getScreenWidth(){
 		return GetSystemMetrics(SM_CXSCREEN);
 	}
 
-	static inline unsigned int getScreenHeight(){
+	inline unsigned int getScreenHeight(){
 		return GetSystemMetrics(SM_CYSCREEN);
 	}
 
-	static inline void getCursorPos(){
+	inline void getCursorPos(){
 		GetCursorPos(&point);
 		mouseX = point.x;
 		mouseY = point.y;
 	}
 
-	static inline void setConsolePos(short x, short y){
+	inline void setConsolePos(short x, short y){
 	    COORD pos = {x,y};
 	    SetConsoleCursorPosition(CONSOLE, pos);
 	}
 
-	static inline void clearScr(){
+	inline void clearScr(){
 	    system("CLS");
 	}
 
@@ -117,7 +111,7 @@ void setEndCb(void(*cb)(void)){
 		}
 	};
 
-	static inline void writeConsoleBuffer(ConsoleBuffer* b){
+	inline void writeConsoleBuffer(ConsoleBuffer* b){
 		    WriteConsoleOutput(
 		  		CONSOLE,
 		  		b->buffer,
@@ -135,8 +129,5 @@ void setEndCb(void(*cb)(void)){
 		return FALSE;  
 	}
 
+
 #endif
-
-
-
-#endif /* OSIO_H */
