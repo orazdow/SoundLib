@@ -75,7 +75,7 @@ public:
         input = inputs[0];        
     }
 
-    // not making virtual (to save ...cycles..)
+    // not making virtual (to save ...cycles)
     inline void sumInputs(){ 
         for(int i = 0; i < inlets; i++) 
             input_bus->sum(i);

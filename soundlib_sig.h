@@ -131,7 +131,7 @@ public:
 };
 
 /**** function gen ****/
-// -change cycle to start from 0
+// -change cycle to start from 0, add ramp, add phase
 class FnGen : public Sig{
 
     double phase = 0;
@@ -400,5 +400,7 @@ public:
         return env;
     }
 };
+
+
 
 #endif //SOUNDLIB_SIG_H

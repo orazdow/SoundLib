@@ -25,21 +25,6 @@ int main(){
 
     sl_init();
     
-/*
-  // fm test with Bus
-    Osc mod(434); 
-    Osc car(300);
-    Bus s;
-    Bus m(sl::mult); 
-
-    Sig n(2000);
-    mod.connect(&m);
-    n.connect(&m);
-    Sig nn(200);
-    m.connect(&s);
-    nn.connect(&s);
-    s.connect(&car);
-*/
  
     Sig out;
 
@@ -76,66 +61,37 @@ int main(){
 
     Osc mod(434);
     Osc car;
-    // Sig index(2000);
-    FnGen lfo(sl::sin, 1);
-    Sig freq(100);
 
-    Expr expr("f0* ( (1+f1) *2000 ) + f2");
+    FnGen lfo(sl::sin, 1);
+    FnGen lfo2(sl::saw, 0.18);
+
+    Expr expr("f0* ( (1+f1) *f3*2000 ) + (1+f2)*120");
 
     mod.connect(&expr);
     lfo.connect(&expr, 1);
-    freq.connect(&expr, 2);
+    lfo2.connect(&expr, 2);
     expr.connect(&car);
 
     car.connect(&out);
+
+    Mouse m;
+
+    Mult mm(20);
+
+    sig_connect(&m.x, &mm);
+
+    mm.connect(&lfo);
+
+    sig_connect(&m.y, &expr, 3);
+
+    lfo2.disconnect(&expr, 2);
 
     // voice patch test
     // PolyKey p(1);
     // TestVoice v;
     // p.connect(&v);
+    // v.connect(&out);
 
-/*
- // Sum as Bus, mult using inlet, auto_summing 1
-   // put op functionality sig...
-    Osc mod(434); 
-    Osc car(300);
-    Sum s;
-    Mult m;
-
-    Sig n(2000);
-    mod.connect(&m);
-    n.connect(&m, 1);
-    Sig nn(200);
-    m.connect(&s);
-    nn.connect(&s);
-    s.connect(&car);
-*/
-
-/*  // Sum val test
-    Sum s(50);
-    Sig a(12);
-
-    a.connect(&s);
-    call_sig();
-    printf("%f\n", s.output);
-    Sig b(60);
-    b.connect(&s, 1);
-    call_sig();
-    printf("%f\n", s.output);
-*/
-
-/*  // Mult val test
-    Mult m(8);
-    Sig a(3);
-
-    a.connect(&m);
-    call_sig();
-    printf("%f\n", m.output);
-    Sig b(12);
-    b.connect(&m, 1);
-    call_sig();
-    printf("%f\n", m.output);
-*/
 
     Pa a(paFunc, &out);
     a.start();
@@ -174,7 +130,4 @@ void printchilds(Sig* n){
         printf("%u, ", n->child_map->nodes[i]->id);
     } printf("\n");
 
-    // for( auto p : n->childs){
-    //      printf("%u, ", p.second->id);
-    // }   printf("\n");
 }
