@@ -1,6 +1,7 @@
 winbuild
 build
 *.exe
+out
 *.o
 .vs
 *.pdb
