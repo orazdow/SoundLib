@@ -52,7 +52,7 @@ static const unsigned int table_size = 512;
 static double table_rate = table_size/(double)sampling_rate;
 // step = freq*stepRate
 
-#if OS_OSX
+#if OS_HOST==OS_MAC
 #else
 static const double pi = acos(0)*2;
 #endif
