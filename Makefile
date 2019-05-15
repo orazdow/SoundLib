@@ -1,39 +1,60 @@
 target := out
 
-sources := main.mm sl/lib/osio.mm sl/lib/pa.cpp sl/expr/lexer.cpp sl/expr/symtable.cpp sl/expr/parser.cpp
+cxx := g++ 
+flags := -std=c++1z
 
-cxx := g++ -std=c++1z
+builddir = build/
 
-frameworks := -framework Foundation -framework Cocoa 
-libs := -lobjc $(frameworks)
+sources := main.cpp lib/osio.cpp lib/pa.cpp expr/lexer.cpp expr/symtable.cpp expr/parser.cpp
 
 includes := -I ../libraries/portaudio/include
-libs += -L /usr/local/lib
-libs += -lportaudio
 
-headers := $(wildcard sl/*.h) $(wildcard sl/lib/*.h) $(wildcard sl/expr/*.h)
-objects := $(addsuffix .o, $(basename $(notdir $(sources))))
 
-%.o: %.mm $(headers)
+# Choose one: OS_WIN, OS_MAC, OS_GNU
+# OS_HOST = OS_WIN
+OS_HOST = OS_MAC
+# OS_HOST = OS_GNU
+
+ifeq '$(OS_HOST)' 'OS_WIN'
+	flags += -D OS_HOST=OS_WIN
+	libs = -L ../libraries/portaudio/build -lportaudio
+
+else ifeq '$(OS_HOST)' 'OS_MAC'
+	flags += -D OS_HOST=OS_MAC -x objective-c++
+	libs = -L /usr/local/lib -lportaudio
+	libs += -lobjc -framework Foundation -framework Cocoa
+
+else ifeq '($(OS_HOST)' 'OS_GNU'
+	flags += -D OS_HOST=OS_GNU	
+	libs = -L /usr/local/lib -lportaudio
+
+endif
+
+headers := $(wildcard *.h) $(wildcard lib/*.h) $(wildcard expr/*.h)
+objects := $(addprefix $(builddir), $(addsuffix .o, $(basename $(notdir $(sources)))))
+
+
+$(builddir)%.o: %.cpp $(headers)
 	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-%.o: sl/lib/%.mm $(headers)
+$(builddir)%.o: lib/%.cpp $(headers)
 	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-%.o: sl/lib/%.cpp $(headers)
+$(builddir)%.o: expr/%.cpp $(headers)
 	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-%.o: sl/expr/%.cpp $(headers)
-	$(cxx) $(flags) $(includes) -c $< -o $@ 
-	@echo $@
 
-all: $(target)
+all: make_dir $(target)
 
-$(target): $(objects) 
+$(target): $(objects) Makefile
 	$(cxx) $(objects) -o $(target) $(libs)
+
+make_dir : $(builddir)
+$(builddir):
+	mkdir -p $(builddir)
 
 clean:
 	rm -f $(objects) $(target)

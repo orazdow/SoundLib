@@ -14,7 +14,7 @@ public:
 	char vbuff[num_inlets*4];
 	char* vstrings[num_inlets];    
 	char* ptr = vbuff;
-	// char vf[2] = "f";
+
 	Lexer* lexer;
     SymTable symtable;
     ShuntingYard* sh;
@@ -23,8 +23,6 @@ public:
 	Expr(std::string str){
 
 		init(num_inlets, true);
-
-		// symtable.make_var(vf, inputs[0]);
 
 		for(int i = 0; i < num_inlets; i++){
 		    sprintf(ptr, "f%u", i);

@@ -11,11 +11,7 @@ void setEndCb(void(*cb)(void)){
 }
 
 
- #if OS_OSX
-
- 	void sleepMs(unsigned long ms){
- 		sleep(ms);
- 	}
+#if OS_HOST == OS_MAC
 
 	unsigned int getScreenWidth(){
 		return [NSScreen mainScreen].frame.size.width;
@@ -30,11 +26,18 @@ void setEndCb(void(*cb)(void)){
 		mouseY = [NSEvent mouseLocation].y;
 	}
 
- #endif
+#elif OS_HOST == OS_GNU
 
-#if OS_WIN32
 
- 	void sleepMs(unsigned long ms){
+#elif OS_HOST == OS_WIN
+
+
+	POINT point;
+	HANDLE CONSOLE, CONSOLE_IN;
+	WORD charAttributes = 7;
+	COORD origin = {0,0};
+
+ 	void usleep(const unsigned long ms){
  		Sleep(ms);
  	}
 
@@ -42,22 +45,22 @@ void setEndCb(void(*cb)(void)){
 		return GetSystemMetrics(SM_CXSCREEN);
 	}
 
-	inline unsigned int getScreenHeight(){
+	unsigned int getScreenHeight(){
 		return GetSystemMetrics(SM_CYSCREEN);
 	}
 
-	inline void getCursorPos(){
+	void getCursorPos(){
 		GetCursorPos(&point);
 		mouseX = point.x;
 		mouseY = point.y;
 	}
 
-	inline void setConsolePos(short x, short y){
+	void setConsolePos(short x, short y){
 	    COORD pos = {x,y};
 	    SetConsoleCursorPosition(CONSOLE, pos);
 	}
 
-	inline void clearScr(){
+	void clearScr(){
 	    system("CLS");
 	}
 
