@@ -9,7 +9,6 @@ sources := main.cpp lib/pa.cpp expr/lexer.cpp expr/symtable.cpp expr/parser.cpp
 
 includes := -I ../libraries/portaudio/include
 
-# Choose one: OS_WIN, OS_MAC, OS_GNU
 OS_HOST = OS_WIN
 # OS_HOST = OS_MAC
 # OS_HOST = OS_GNU
@@ -32,23 +31,21 @@ else ifeq '$(OS_HOST)' 'OS_GNU'
 
 endif
 
-headers := $(wildcard *.h) $(wildcard lib/*.h) $(wildcard expr/*.h)
 objects := $(addprefix $(builddir), $(addsuffix .o, $(basename $(notdir $(sources)))))
 
-
-$(builddir)%.o: %.cpp $(headers)
+$(builddir)%.o: %.cpp $(wildcard *.h)
 	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-$(builddir)%.o: lib/%.cpp $(headers)
+$(builddir)%.o: lib/%.cpp $(wildcard lib/*.h)
 	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-$(builddir)%.o: lib/%.mm $(headers)
+$(builddir)%.o: lib/%.mm $(wildcard lib/*.h)
 	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-$(builddir)%.o: expr/%.cpp $(headers)
+$(builddir)%.o: expr/%.cpp $(wildcard expr/*.h)
 	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 

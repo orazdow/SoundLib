@@ -3,22 +3,22 @@
 REM MSVC build bat file
 REM run with vscmd: cmd /k "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
 
-set target=expr.exe
+set target=slib.exe
 set builddir=winbuild
 
 IF not [%1]==[] (GOTO args)
 
 mkdir %builddir%
 
-rem SET libdirs=/LIBPATH:D:\libraries\portaudio\build\msvc
-rem SET libs=portaudio_x86.lib 
-
-rem SET includes=/ID:\libraries\portaudio\include 
+SET libdirs=/LIBPATH:D:\libraries\portaudio\build\msvc
+SET libs=portaudio_x86.lib 
+rem SET libs=portaudio_static.lib 
+SET includes=/ID:\libraries\portaudio\include 
 
 set debug=/Zi /DEBUG
 rem set static=/MT
 
-SET files=main.cpp expr.cpp lexer.cpp parser.cpp symtable.cpp
+SET files=main.cpp lib\pa.cpp lib\io_win.cpp expr\lexer.cpp expr\parser.cpp expr\symtable.cpp
 
 SET opts=/Fe%target% /Fo%builddir%\ %static% %debug% /EHsc /std:c++17
 

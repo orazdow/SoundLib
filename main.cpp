@@ -1,5 +1,4 @@
 
-#include "lib/osio.h"
 #include "lib/pa.h"
 #include "soundlib.h"
 #include "soundlib_sig.h"
