@@ -1,15 +1,11 @@
 
+#include "lib/osio.h"
+#include "lib/pa.h"
 #include "soundlib.h"
 #include "soundlib_sig.h"
 #include "soundlib_ctl.h"
 #include "expr.h"
-#include "lib/pa.h"
-#include "stdio.h"
 
-void printbus(Sig* n, uint inlet);
-void printchilds(Sig* n);
-void disp(Msg* m);
-void dfs(Sig* n, int lev);
 
 void paFunc(const float* in, float* out, unsigned long frames, void* data){    
 
@@ -17,18 +13,18 @@ void paFunc(const float* in, float* out, unsigned long frames, void* data){
     
     for(unsigned long i = 0; i < frames; i++){ 
         call_sig();
-        *out++ =  o->output*0.33;
+        *out++ =  o->output*0.7;
     }
 }
+
 
 int main(){
 
     sl_init();
-    
- 
+
+
     Sig out;
 
-  // fm test Sum, Mult
     // Osc mod(434); 
     // Osc car;
     // Mult m(2000); 
@@ -98,36 +94,10 @@ int main(){
 
     while(1){
         call_ctl(); 
-        //disp(&p.m);
-        //printf("\r %f", v.env->output);
-        Sleep(20);
+        // usleep(20);
     }
 
     a.terminate();
 
     return 0;
-}
-
-void disp(Msg* m){ 
-    for(unsigned int i = 0; i < m->num; i++){
-         printf("%u:%u ", m->value[i]._n.note, m->value[i]._n.on);
-    }printf("\r");
-}
-
-void printbus(Sig* n, uint inlet){ 
-    printf("%f|", *n->inputs[inlet]);
-    uint end = n->input_bus->float_map.addptr[inlet];
-    uint n_summing = n->input_bus->n_summing;
-    for(int i = 0; i < end; i++){
-        printf("%f, ", *(n->input_bus->inputs[i+inlet*n_summing]));
-    }
-    printf("\n");
-}
-
-
-void printchilds(Sig* n){
-    for(int i = 0; i < n->child_map->addptr; i++){
-        printf("%u, ", n->child_map->nodes[i]->id);
-    } printf("\n");
-
 }

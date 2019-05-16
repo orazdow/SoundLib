@@ -2,6 +2,8 @@
 #define SOUNDLIB_CTL_H
 
 #include "soundlib.h"
+#include "lib/osio.h"
+
 
 /******
 all Ctl must call msg_alloc

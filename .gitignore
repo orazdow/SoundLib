@@ -1,9 +1,11 @@
 winbuild
 build
-prev
 test
 *.exe
 *.o
+*.orig
+out
+.DS_Store
 .vs
 *.pdb
 *.ilk

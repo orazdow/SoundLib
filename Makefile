@@ -1,52 +1,70 @@
-TARGET := out.exe
+target := out
 
-SRCDIR_2 = lib
-SRCDIR_3 = expr
+cxx := g++ 
+flags := -std=c++1z
 
-# SRC := $(wildcard *.cpp)
-SRC := main.cpp
-SRC += $(wildcard $(SRCDIR_2)/*.cpp)
-SRC += $(wildcard $(SRCDIR_3)/*.cpp)
-
-# comment out to use basedir
 builddir = build/
 
-INCLUDE = -I D:/libraries/portaudio/include
-LIBS = -L D:/libraries/portaudio/build 
-LIBS += -lportaudio
+sources := main.cpp lib/pa.cpp expr/lexer.cpp expr/symtable.cpp expr/parser.cpp
 
-CXX := g++ -std=c++17
-# FLAGS := -Wall
+includes := -I ../libraries/portaudio/include
 
-OBJECTS :=  $(addprefix $(builddir), $(addsuffix .o, $(basename $(notdir $(SRC)))))
-DEPS = $(wildcard *.h)
-DEPS += $(wildcard $(SRCDIR_2)/*.h)
-DEPS += $(wildcard $(SRCDIR_3)/*.h)
+# Choose one: OS_WIN, OS_MAC, OS_GNU
+OS_HOST = OS_WIN
+# OS_HOST = OS_MAC
+# OS_HOST = OS_GNU
 
-$(builddir)%.o: %.cpp $(DEPS)
-	$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@ $(LIBS)
+ifeq '$(OS_HOST)' 'OS_WIN'
+	flags += -D OS_HOST=OS_WIN
+	sources += lib/io_win.cpp
+	libs = -L ../libraries/portaudio/build -lportaudio
+
+else ifeq '$(OS_HOST)' 'OS_MAC'
+	flags += -D OS_HOST=OS_MAC 
+	sources += lib/io_mac.mm
+	libs = -L /usr/local/lib -lportaudio
+	libs += -lobjc -framework Foundation -framework Cocoa
+
+else ifeq '$(OS_HOST)' 'OS_GNU'
+	flags += -D OS_HOST=OS_GNU	
+	sources += lib/io_gnu.cpp
+	libs = -L /usr/local/lib -lportaudio
+
+endif
+
+headers := $(wildcard *.h) $(wildcard lib/*.h) $(wildcard expr/*.h)
+objects := $(addprefix $(builddir), $(addsuffix .o, $(basename $(notdir $(sources)))))
+
+
+$(builddir)%.o: %.cpp $(headers)
+	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-$(builddir)%.o: $(SRCDIR_2)/%.cpp $(DEPS)
-	$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@ $(LIBS)
+$(builddir)%.o: lib/%.cpp $(headers)
+	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-$(builddir)%.o: $(SRCDIR_3)/%.cpp $(DEPS)
-	$(CXX) $(INCLUDE) $(FLAGS) -c $< -o $@ $(LIBS)
+$(builddir)%.o: lib/%.mm $(headers)
+	$(cxx) $(flags) $(includes) -c $< -o $@ 
 	@echo $@
 
-all: make_dir $(TARGET)
+$(builddir)%.o: expr/%.cpp $(headers)
+	$(cxx) $(flags) $(includes) -c $< -o $@ 
+	@echo $@
 
-$(TARGET): $(OBJECTS)
-	$(CXX) $^ -o $@ $(LIBS)
+
+all: make_dir $(target)
+
+$(target): $(objects) Makefile
+	$(cxx) $(objects) -o $(target) $(libs)
+
 
 make_dir : $(builddir)
-
 $(builddir):
 	mkdir -p $(builddir)
 
 clean:
-	rm -f $(OBJECTS) $(TARGET)
+	rm -f $(objects) $(target)
 
 run:
-	@./$(TARGET)
+	@./$(target)

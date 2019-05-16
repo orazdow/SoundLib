@@ -3,7 +3,6 @@
 #define SOUNDLIB_GLOB_H
 
 #include <math.h>
-#include "lib/osio.h"
 
 typedef unsigned int uint;
 
@@ -14,9 +13,12 @@ typedef unsigned int uint;
 #define map_limit 512 //...
 #define inc_limit(a, limit) a = (a < limit) ? a+1 : a
 #define dec_limit(a, limit) a = (a > limit) ? a-1 : a
+#ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+#ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
-
+#endif
 #define msg_int 1
 #define msg_float 2
 #define msg_note 3
@@ -48,6 +50,7 @@ static unsigned int sampling_rate = 44100;
 static const unsigned int table_size = 512;
 static double table_rate = table_size/(double)sampling_rate;
 // step = freq*stepRate
+
 
 static const double pi = acos(0)*2;
 static const double tau = 2*pi;
