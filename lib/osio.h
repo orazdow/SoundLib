@@ -30,7 +30,6 @@ void setEndCb(void(*cb)(void));
 
 #if OS_HOST==OS_WIN
 
-	#include "windows.h"
 	#pragma comment (lib, "user32.lib")
 
 	extern POINT point;
@@ -44,11 +43,9 @@ void setEndCb(void(*cb)(void));
  	void usleep(const unsigned long ms);
  	
 #elif OS_HOST==OS_MAC
-	#import <Foundation/Foundation.h>
-	#import <AppKit/AppKit.h>
+
 
 #elif OS_HOST==OS_GNU
-	#include "uistd.h"
 
 #endif
 

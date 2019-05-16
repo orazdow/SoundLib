@@ -1,8 +1,9 @@
 winbuild
 build
 *.exe
-out
 *.o
+out
+.DS_Store
 .vs
 *.pdb
 *.ilk

@@ -1,4 +1,3 @@
-
 #include "osio.h"
 
 long mouseX = 0;
@@ -11,26 +10,8 @@ void setEndCb(void(*cb)(void)){
 }
 
 
-#if OS_HOST == OS_MAC
-
-	unsigned int getScreenWidth(){
-		return [NSScreen mainScreen].frame.size.width;
-	}
-
-	unsigned int getScreenHeight(){
-		return [NSScreen mainScreen].frame.size.height;
-	}
-
-	void getCursorPos(){
-		mouseX = [NSEvent mouseLocation].x;
-		mouseY = [NSEvent mouseLocation].y;
-	}
-
-#elif OS_HOST == OS_GNU
-
-
-#elif OS_HOST == OS_WIN
-
+#if OS_HOST == OS_WIN
+	#include "windows.h"
 
 	POINT point;
 	HANDLE CONSOLE, CONSOLE_IN;
@@ -131,6 +112,6 @@ void setEndCb(void(*cb)(void)){
 		if(END_CB){ END_CB(); }
 		return FALSE;  
 	}
-
-
+#else
+	// wrong file included for host os (io_win.cpp)
 #endif
