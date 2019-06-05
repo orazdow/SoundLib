@@ -27,6 +27,10 @@ void setEndCb(void(*cb)(void)){
  		Sleep(ms);
  	}
 
+	bool getKeyState(unsigned int key){
+		return (bool)GetAsyncKeyState(key);
+	}
+
 	unsigned int getScreenWidth(){
 		return GetSystemMetrics(SM_CXSCREEN);
 	}

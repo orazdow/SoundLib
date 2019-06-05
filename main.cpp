@@ -22,7 +22,7 @@ int main(){
     sl_init();
 
 
-    Sig out;
+    Mult out;
 
     // Osc mod(434); 
     // Osc car;
@@ -60,7 +60,7 @@ int main(){
     FnGen lfo(sl::sin, 1);
     FnGen lfo2(sl::saw, 0.18);
 
-    Expr expr("f0* ( (1+f1) *f3*2000 ) + (1+f2)*120");
+    Expr expr("f0* (1+f1) * f3*2000 + (1+f2)*120");
 
     mod.connect(&expr);
     lfo.connect(&expr, 1);
@@ -80,6 +80,8 @@ int main(){
     sig_connect(&m.y, &expr, 3);
 
     lfo2.disconnect(&expr, 2);
+
+    out.setVal(0.6);
 
     // voice patch test
     // PolyKey p(1);

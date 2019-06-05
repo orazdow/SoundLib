@@ -5,7 +5,7 @@
 #include <map>
 #include <unordered_map>
 
-/* can replace with unordered_map ..faster itertion for call() not really needed with work queue..*/
+/* can replace with unordered_map ..faster itertion not needed with work queue..*/
 template <class T>
 struct Node_map{ // template<> Map
 

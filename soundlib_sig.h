@@ -3,9 +3,44 @@
 
 #include "soundlib.h"
 
+
+/* two inlet defaultable sum (as in pd) */
+class Sum : public Sig{
+public:
+
+    Sum(double f){
+        init(2); 
+        setVal(f, 1);
+    }
+    Sum() : Sum(0){}
+
+    void dsp(){ 
+        output = *inputs[0];
+        output += *inputs[1];
+    }
+
+};
+
+/* two inlet defaultable mult (as in pd) */
+class Mult : public Sig{
+public:
+
+    Mult(double f){
+        init(2); 
+        setVal(f, 1);   
+    }
+
+    Mult() : Mult(1){}
+
+    void dsp(){
+        output = *input;
+        output *= *inputs[1];
+    }
+
+};
+
 /* single inlet sum/mult node*/
 class Bus : public Sig{
-
 public:
 
     uint op = sl::sum;
@@ -32,61 +67,13 @@ public:
 
 };
 
-/* two inlet defaultable sum (as in pd) */
-class Sum : public Sig{
-
-    float val2 = 0;
-
-public:
-    Sum(double f){
-        val2 = f;
-        // 2 inlets
-        init(2); 
-        // init 2nd inlet
-        initVal(&val2, 1);
-    }
-    Sum() : Sum(0){}
-
-    void dsp(){ 
-        output = 0;
-        output += *inputs[0];
-        output += *inputs[1];
-    }
-
-};
-
-/* two inlet defaultable mult (as in pd) */
-class Mult : public Sig{
-   
-   float val2 = 1;
-
-public:
-
-    Mult(double f){
-        val2 = f;
-        // 2 inlets
-        init(2); 
-        // init 2nd inlet
-        initVal(&val2, 1);       
-    }
-
-    Mult() : Mult(1){}
-
-    void dsp(){
-        output = *input;
-        output *= *inputs[1];
-    }
-
-};
-
 /*
 class Osc : public Sig{
-   const double rate = 1/44100.0;
-   const double tau = acos(-1)*2;
+   const float rate = 1/(float)sampling_rate;
+   const float tau = acos(0)*4;
    float step = 0;
 public:
-    Osc(){}
-    Osc(double val) : Sig(val){}
+    Osc(float val = 0) : Sig(val){}
 
     void dsp(){
         step += tau * *input * rate;
@@ -131,7 +118,7 @@ public:
 };
 
 /**** function gen ****/
-// -change cycle to start from 0, add ramp, add phase
+// -add ramp,  phase
 class FnGen : public Sig{
 
     double phase = 0;

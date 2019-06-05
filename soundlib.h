@@ -47,7 +47,7 @@ public:
     }
 
     Sig() : Sig(0){ } 
-    Sig(bool summing, uint inlets): Sig(0){ init(summing, inlets); } 
+    Sig(uint inlets, bool summing): Sig(0){ init(inlets, summing); } 
     virtual ~Sig(){ delete[] inputs; delete input_bus; delete child_map; }
 
     virtual void dsp(){ output = *input; } 
@@ -69,13 +69,17 @@ public:
         input_bus->update(val, inlet);
     }
 
+    void setVal(float f, int inlet = 1){
+        this->val = f;
+        input_bus->update(&val, inlet);
+    }
 
     virtual void bypass_summing(uint inlet = 0){
         inputs[inlet] = input_bus->inputs[inlet*num_summing];
         input = inputs[0];        
     }
 
-    // not making virtual (to save ...cycles)
+    // not making virtual (to save cycles....)
     inline void sumInputs(){ 
         for(int i = 0; i < inlets; i++) 
             input_bus->sum(i);
@@ -104,6 +108,7 @@ protected:
         callChildren();     
     }
 
+    // dfs call(), will be replaced by scheduler 
     void callChildren(){ 
         // for(auto p : childs){
         //     p.second->call();
