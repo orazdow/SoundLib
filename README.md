@@ -1,6 +1,6 @@
 #### SoundLib
 
-SoundLib an environment for live audio programming as well as creating plugins and software. Currently it's a library of dsp and control objects being built into an interpreted environment, SoundLib is just a working title. 
+SoundLib is an environment for live audio programming and creating plugins and software. Currently it's a library of dsp and control objects being built into an interpreted environment, SoundLib is just a working title. 
 
 The main audio base-class **Sig** should provide everything needed to incorporate classes from other libraries like Stk or Maximilian:
 ```
@@ -80,7 +80,7 @@ class Sum : public Sig{
 The base class for control objects is **Ctl**. Control messages have a simple structure currently and all message sources are polling to generate messages, so events and a different message protocol of some kind will be incorporated. 
 
 ```
-::Ctl::
+:::Ctl:::
 
 Msg struct:
     --depending on protocals like midi, osc or fudi, and how parameters are parsed this will likely change.
